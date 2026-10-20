@@ -4,6 +4,14 @@ An AI-driven investment research and risk analytics platform. Users ask question
 
 > **Status:** This project is no longer actively developed or maintained. The code is published as-is for reference and reuse. Issues and pull requests may not receive a response.
 
+## Disclaimer
+
+**This software does not provide investment advice.** Nothing produced by this platform, including AI-generated analysis, model outputs, risk metrics, valuations, screens, or reports, is investment, financial, legal, or tax advice, or a recommendation to buy, sell, or hold any security or other financial instrument.
+
+Outputs may be inaccurate, incomplete, or out of date. AI models can make mistakes, and third-party market data can contain errors. You are solely responsible for your own investment and trading decisions and for independently verifying any information before acting on it.
+
+**Binomial Capital Management and the contributors to this project are not liable for any investment decisions made using this platform, or for any trading losses or other damages arising from its use or from reliance on its outputs.** Use it entirely at your own risk. See also the warranty disclaimer in the [LICENSE](LICENSE).
+
 ## Features
 
 - **Multi-agent chat**: a LangGraph supervisor routes each request to specialist agents (risk, comparable companies, DCF, options, quant coding, charting, document analysis, screening, institutional activity, prediction markets, and more).
