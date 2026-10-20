@@ -1,0 +1,54 @@
+{
+  "label": "9_mobius_retail",
+  "row_count": 100000,
+  "surface_name": "torus",
+  "genus": 1,
+  "orientable": true,
+  "euler_characteristic": 0,
+  "classification_mode": "graph_heuristic",
+  "surface_confidence": 0.0,
+  "betti_0": 949,
+  "betti_1": 792997,
+  "vertex_count": 71337,
+  "edge_count": 863385,
+  "face_count": 0,
+  "exported_faces": 0,
+  "face_coverage": 0.0,
+  "occupancy": 0.0,
+  "boundary_edge_count": 0,
+  "boundary_loop_count": 0,
+  "face_euler_characteristic": null,
+  "face_genus_estimate": null,
+  "axes": [
+    {
+      "column": "category",
+      "type": "categorical",
+      "size": 50,
+      "wraps": false,
+      "wrap_orientation": 0,
+      "ordered": false
+    },
+    {
+      "column": "week",
+      "type": "temporal",
+      "size": 52,
+      "wraps": true,
+      "wrap_orientation": 1,
+      "ordered": true
+    },
+    {
+      "column": "units_sold",
+      "type": "numeric_ordered",
+      "size": 120,
+      "wraps": true,
+      "wrap_orientation": 1,
+      "ordered": true
+    }
+  ],
+  "field_columns": [
+    "demand_surprise",
+    "revenue"
+  ],
+  "primary_field": "demand_surprise",
+  "build_ms": 1233380.9
+}

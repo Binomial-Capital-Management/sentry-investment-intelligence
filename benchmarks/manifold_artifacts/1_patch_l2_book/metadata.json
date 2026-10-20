@@ -1,0 +1,48 @@
+{
+  "label": "1_patch_l2_book",
+  "row_count": 100000,
+  "surface_name": "bounded_patch",
+  "genus": 0,
+  "orientable": true,
+  "euler_characteristic": 2,
+  "classification_mode": "validated_2d_faces",
+  "surface_confidence": 0.9972,
+  "betti_0": 1,
+  "betti_1": 32934,
+  "vertex_count": 999,
+  "edge_count": 33932,
+  "face_count": 927,
+  "exported_faces": 927,
+  "face_coverage": 0.9957,
+  "occupancy": 0.999,
+  "boundary_edge_count": 144,
+  "boundary_loop_count": 2,
+  "face_euler_characteristic": 0,
+  "face_genus_estimate": 0.0,
+  "axes": [
+    {
+      "column": "venue",
+      "type": "categorical",
+      "size": 20,
+      "wraps": false,
+      "wrap_orientation": 0,
+      "ordered": false
+    },
+    {
+      "column": "ticker",
+      "type": "categorical",
+      "size": 50,
+      "wraps": false,
+      "wrap_orientation": 0,
+      "ordered": false
+    }
+  ],
+  "field_columns": [
+    "imbalance",
+    "spread",
+    "depth",
+    "future_move"
+  ],
+  "primary_field": "imbalance",
+  "build_ms": 1209.5
+}

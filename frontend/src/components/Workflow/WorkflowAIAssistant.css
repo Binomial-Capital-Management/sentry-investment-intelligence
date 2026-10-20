@@ -1,0 +1,280 @@
+/* Workflow AI Assistant - Slide-in Panel */
+.workflow-ai-assistant {
+  position: fixed;
+  right: -350px;
+  top: 44px; /* Below header */
+  bottom: 28px; /* Above status bar */
+  width: 350px;
+  background: white;
+  border-left: 1px solid #E0E0E0;
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+}
+
+.workflow-ai-assistant.open {
+  right: 0;
+}
+
+/* Header */
+.assistant-header {
+  height: 48px;
+  background: #FAFAFA;
+  border-bottom: 1px solid #E0E0E0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  flex-shrink: 0;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2A2A2A;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.header-title svg {
+  stroke-width: 1.5;
+}
+
+.model-badge {
+  font-size: 10px;
+  background: #E8F4FD;
+  color: #0078D4;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.close-btn {
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  color: #6A6A6A;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.close-btn:hover {
+  color: #2A2A2A;
+}
+
+/* Messages Area */
+.assistant-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  background: #FAFAFA;
+}
+
+.message {
+  margin-bottom: 16px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message.user .message-content {
+  background: #0078D4;
+  color: white;
+  padding: 10px 14px;
+  border-radius: 16px 16px 4px 16px;
+  margin-left: 40px;
+  font-size: 13px;
+  line-height: 1.4;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.message.assistant .message-content {
+  background: white;
+  border: 1px solid #E0E0E0;
+  padding: 10px 14px;
+  border-radius: 4px 16px 16px 16px;
+  margin-right: 40px;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Suggestion Cards */
+.suggestion-card {
+  background: white;
+  border: 1px solid #D0D0D0;
+  border-radius: 4px;
+  padding: 12px;
+  margin: 8px 40px 8px 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.suggestion-card h4 {
+  margin: 0 0 6px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2A2A2A;
+}
+
+.suggestion-card p {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  color: #6A6A6A;
+  line-height: 1.4;
+}
+
+.apply-btn {
+  background: #0078D4;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.apply-btn:hover {
+  background: #106EBE;
+}
+
+/* Input Area */
+.assistant-input {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  background: white;
+  border-top: 1px solid #E0E0E0;
+  flex-shrink: 0;
+}
+
+.assistant-input input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #D0D0D0;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  transition: border-color 0.15s ease;
+}
+
+.assistant-input input:focus {
+  outline: none;
+  border-color: #0078D4;
+}
+
+.assistant-input input:disabled {
+  background: #F5F5F5;
+  color: #A0A0A0;
+}
+
+.send-btn {
+  width: 36px;
+  height: 36px;
+  background: #0078D4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.send-btn:hover:not(:disabled) {
+  background: #106EBE;
+}
+
+.send-btn:disabled {
+  background: #D0D0D0;
+  cursor: not-allowed;
+}
+
+/* Scrollbar Styling */
+.assistant-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.assistant-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.assistant-messages::-webkit-scrollbar-thumb {
+  background: #C0C0C0;
+  border-radius: 3px;
+}
+
+.assistant-messages::-webkit-scrollbar-thumb:hover {
+  background: #A0A0A0;
+}
+
+/* Loading Animation */
+.message.loading {
+  padding: 0;
+}
+
+.loading-dots {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 14px;
+  background: white;
+  border: 1px solid #E0E0E0;
+  border-radius: 4px 16px 16px 16px;
+  margin-right: 40px;
+  height: 36px;
+}
+
+.loading-dots span {
+  width: 8px;
+  height: 8px;
+  background: #0078D4;
+  border-radius: 50%;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.loading-dots span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes pulse {
+  0%, 60%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}

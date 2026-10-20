@@ -1,0 +1,126 @@
+# =============================================================================
+# DOCKERIGNORE - Optimized for lean backend image (~200-300MB target)
+# =============================================================================
+
+# VCS
+.git
+.gitignore
+.gitattributes
+
+# =============================================================================
+# PYTHON BUILD ARTIFACTS
+# =============================================================================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+.venv/
+venv/
+env/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.pylint.d/
+.cache/
+.hypothesis/
+htmlcov/
+.coverage
+coverage.xml
+
+# =============================================================================
+# SQLite DATABASES - These go on EFS, NOT in the image!
+# (Saves ~500MB)
+# =============================================================================
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Exception: FMP field mappings needed at runtime
+!core/mcp_servers/fmp/data/field_mappings.db
+
+# =============================================================================
+# NODE/FRONTEND - Frontend deploys to S3/CloudFront separately
+# (Saves ~900MB)
+# =============================================================================
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.vite/
+npm-debug.log*
+yarn-debug.log*
+.eslintcache
+
+# =============================================================================
+# LAMBDA FUNCTIONS - Separate deployment to AWS Lambda
+# (Saves ~40MB)
+# =============================================================================
+lambdas/*/package/
+lambdas/*/*.zip
+
+# =============================================================================
+# LARGE/RUNTIME-ONLY DIRECTORIES
+# =============================================================================
+logs/
+data/
+artifacts/
+model_outputs/
+web-bundles/
+exports/
+test_results/
+flask_session/
+
+# Canvas fields DB lives on EFS in production
+core/canvas/data/
+
+# =============================================================================
+# TESTS AND DOCS - Not needed in runtime image
+# =============================================================================
+tests/
+docs/
+archive/
+archived/
+pdf-archive/
+migrations_archive/
+
+# =============================================================================
+# OS/EDITOR FILES
+# =============================================================================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# =============================================================================
+# ENV & SECRETS - Never bake into image!
+# =============================================================================
+.env
+.env.*
+*.env
+deployment/aws-ecs/*.env
+secrets/
+*.pem
+*.key
+
+# =============================================================================
+# MISC BUILD FILES
+# =============================================================================
+*.log
+*.tmp
+*.bak
+dump.rdb
+Makefile
+docker-compose*.yml
+fly.toml*
+security-report.json
+task-def.json
+new-task-def.json

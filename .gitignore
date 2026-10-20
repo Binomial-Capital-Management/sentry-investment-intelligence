@@ -1,0 +1,177 @@
+# Environment variables - NEVER commit secrets
+.env
+.env.*
+.env.local
+.env.*.local
+.env.production
+.env.development
+.env.backup
+.env.security_warning
+.env.bak*
+ecs-production.env
+deployment/aws-ecs/*.env
+frontend/.env.production
+frontend/.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# Output files
+risk_report.png
+*.log
+*.log.*
+*.csv
+logs/
+
+# Exports and generated files
+exports/
+*.docx
+*.pdf
+model_outputs/
+test_results/
+
+# Temporary files
+*.tmp
+*.bak
+*~
+
+# Session data
+flask_session/
+cookies.txt
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+data/
+
+# Exception: Allow FMP field mappings database for production use
+!core/mcp_servers/fmp/data/field_mappings.db
+
+# Exception: Allow Canvas fields database for production use
+!core/canvas/data/canvas_fields.db
+
+# Redis dump
+dump.rdb
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node modules (for frontend)
+node_modules/
+dist/
+build/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Database files (additional)
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.hypothesis/
+
+# Jupyter
+.ipynb_checkpoints
+
+# Fly.io
+fly.toml.backup
+
+# Archives and backups
+archive/
+pdf-archive/
+artifacts/
+*.egg-info/
+
+# Secrets (NEVER commit these)
+secrets/
+*.pem
+*.key
+.vercel
+*.db
+*.db-shm
+*.db-wal
+# Database files (created at root by libraries)
+*.db
+*.db-wal
+*.db-shm
+
+# Linting and development tools output
+.mypy_cache/
+.ruff_cache/
+.pylint.d/
+security-report.json
+flake8-report.txt
+
+# Prettier and ESLint cache
+.eslintcache
+.prettier-cache
+
+# Lambda function dependencies (install via requirements.txt)
+lambdas/*/package/
+lambdas/*/*.zip
+lambdas/*/lambda-full.zip
+scripts/convert_sql_to_alembic.py
+ARCHITECTURE_DIAGRAMS.md
+REPOSITORY_STRUCTURE.md
+TECH_DEBT.md
+.cursorignore
+docs/SMART_JOIN_PROPOSAL.md
+docs/bugs/GOOGLE_OAUTH_CLERK_SHARED_CREDENTIALS.md
+
+# Temporary working directory
+tmp/
+deployment/aws-ecs/production.env
+logs/llm_costs.json
+docs/PR-36-review.md
+
+# Terraform
+*.tfplan
+tfplan
+.terraform/
+*.tfstate
+*.tfstate.backup
+
+# VPN and PKI (sensitive)
+*.ovpn
+infrastructure/easy-rsa/
+
+# Local credentials / tool config (never commit)
+.gh-config/
+*.tfvars
+!*.tfvars.example
+*.pem
+*.key
+
+# AI assistant / editor config (never commit)
+.claude/
+CLAUDE.md
+AGENTS.md
+.mcp.json
+.cursor/
+.cursorignore
+.cursorrules
+.gemini/
+GEMINI.md

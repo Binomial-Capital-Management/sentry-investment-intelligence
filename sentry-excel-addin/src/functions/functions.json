@@ -1,0 +1,61 @@
+{
+  "functions": [
+    {
+      "id": "SENTRY.PRICE",
+      "name": "SENTRY.PRICE",
+      "description": "Get current stock price",
+      "parameters": [
+        {
+          "name": "ticker",
+          "description": "Stock ticker symbol (e.g. AAPL)",
+          "type": "string",
+          "dimensionality": "scalar"
+        }
+      ],
+      "result": {
+        "type": "number",
+        "dimensionality": "scalar"
+      }
+    },
+    {
+      "id": "SENTRY.METRIC",
+      "name": "SENTRY.METRIC",
+      "description": "Get a financial metric for a stock",
+      "parameters": [
+        {
+          "name": "ticker",
+          "description": "Stock ticker symbol",
+          "type": "string",
+          "dimensionality": "scalar"
+        },
+        {
+          "name": "metric",
+          "description": "Metric name (e.g. marketCap, pe, eps)",
+          "type": "string",
+          "dimensionality": "scalar"
+        }
+      ],
+      "result": {
+        "type": "number",
+        "dimensionality": "scalar"
+      }
+    },
+    {
+      "id": "SENTRY.FRED",
+      "name": "SENTRY.FRED",
+      "description": "Get FRED economic data series value",
+      "parameters": [
+        {
+          "name": "series",
+          "description": "FRED series ID (e.g. UNRATE, GDP, DFF)",
+          "type": "string",
+          "dimensionality": "scalar"
+        }
+      ],
+      "result": {
+        "type": "number",
+        "dimensionality": "scalar"
+      }
+    }
+  ]
+}

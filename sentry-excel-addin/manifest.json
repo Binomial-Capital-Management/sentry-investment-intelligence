@@ -1,0 +1,101 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/vDevPreview/MicrosoftTeams.schema.json",
+  "id": "c0d1e2f3-a4b5-6789-cdef-0123456789ab",
+  "version": "0.1.0",
+  "manifestVersion": "devPreview",
+  "name": {
+    "short": "Sentry",
+    "full": "Sentry Investment Intelligence for Excel"
+  },
+  "description": {
+    "short": "AI-powered financial modeling agent for Excel",
+    "full": "Sentry builds and modifies financial models autonomously inside Excel. DCF models, sensitivity analysis, portfolio optimization — powered by institutional-grade analytics."
+  },
+  "developer": {
+    "name": "Binomial AI",
+    "websiteUrl": "https://sentry.ai",
+    "privacyUrl": "https://sentry.ai/privacy",
+    "termsOfUseUrl": "https://sentry.ai/terms"
+  },
+  "icons": {
+    "outline": "appPackage/icon-32.png",
+    "color": "appPackage/icon-80.png"
+  },
+  "accentColor": "#4472C4",
+  "extensions": [
+    {
+      "requirements": {
+        "scopes": ["workbook"],
+        "capabilities": [
+          { "name": "Mailbox", "minVersion": "1.1" }
+        ]
+      },
+      "runtimes": [
+        {
+          "id": "SharedRuntime",
+          "type": "general",
+          "code": {
+            "page": "https://localhost:3100/commands.html"
+          },
+          "lifetime": "long",
+          "actions": [
+            { "id": "WriteCells", "type": "executeFunction" },
+            { "id": "ReadRange", "type": "executeFunction" },
+            { "id": "ReadWorkbookContext", "type": "executeFunction" },
+            { "id": "ReadSheet", "type": "executeFunction" },
+            { "id": "CreateSheet", "type": "executeFunction" },
+            { "id": "CreateChart", "type": "executeFunction" },
+            { "id": "FormatRange", "type": "executeFunction" },
+            { "id": "ShowTaskpane", "type": "openPage", "view": "TaskpaneView" }
+          ]
+        }
+      ],
+      "ribbons": [
+        {
+          "contexts": ["default"],
+          "tabs": [
+            {
+              "id": "SentryTab",
+              "label": "Sentry",
+              "groups": [
+                {
+                  "id": "SentryGroup",
+                  "label": "Sentry",
+                  "icons": [
+                    { "size": 16, "url": "appPackage/icon-32.png" },
+                    { "size": 32, "url": "appPackage/icon-32.png" },
+                    { "size": 80, "url": "appPackage/icon-80.png" }
+                  ],
+                  "controls": [
+                    {
+                      "id": "OpenTaskpane",
+                      "type": "button",
+                      "label": "Open Sentry",
+                      "icons": [
+                        { "size": 16, "url": "appPackage/icon-32.png" },
+                        { "size": 32, "url": "appPackage/icon-32.png" },
+                        { "size": 80, "url": "appPackage/icon-80.png" }
+                      ],
+                      "supertip": {
+                        "title": "Sentry AI Agent",
+                        "description": "Open the Sentry task pane to chat with your financial modeling agent."
+                      },
+                      "actionId": "ShowTaskpane"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "extensions.customFunctions": [
+    {
+      "script": {
+        "url": "https://localhost:3100/functions.bundle.js"
+      }
+    }
+  ]
+}

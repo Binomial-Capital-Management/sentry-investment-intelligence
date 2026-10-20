@@ -1,0 +1,184 @@
+/**
+ * Add-in theme - design tokens
+ * Includes font faces, CSS variables for colors, and typography settings
+ */
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   FONT FACES
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('https://fonts.gstatic.com/s/jetbrainsmono/v18/tDbY2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKxjPVmUsaaDhw.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   CSS VARIABLES - Light Theme (Default)
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Font stacks */
+  --font-ui: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-claude-response: Georgia, Cambria, 'Times New Roman', Times, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Menlo, Consolas, 'Courier New', monospace;
+
+  /* Background colors (HSL values) */
+  --bg-000: 0 0% 100%;           /* White */
+  --bg-100: 210 15% 94%;          /* Main panel bg - cool tinted */
+  --bg-200: 0 0% 94%;            /* Light gray */
+  --bg-300: 210 10% 87%;          /* User message bubble */
+  --bg-400: 0 0% 89%;            /* Darker gray */
+
+  /* Text colors */
+  --text-000: 60 2.6% 7.6%;      /* Near black */
+  --text-100: 60 2.6% 7.6%;      /* Near black */
+  --text-200: 60 2.5% 23.3%;     /* Dark gray */
+  --text-300: 60 2.5% 23.3%;     /* Dark gray */
+  --text-400: 51 3.1% 43.7%;     /* Medium gray */
+  --text-500: 51 3.1% 43.7%;     /* Medium gray */
+
+  /* Accent colors (blue - matching AIChat Apply button) */
+  --accent-brand: 217 91% 53%;
+  --accent-main-000: 217 91% 53%;      /* Primary blue - #2563eb */
+  --accent-main-100: 217 91% 53%;
+  --accent-main-200: 217 91% 60%;      /* Hover blue - lighter */
+
+  /* Secondary accent (blue) */
+  --accent-secondary-000: 210 73.7% 40.2%;
+  --accent-secondary-100: 210 70.9% 51.6%;
+
+  /* Border colors */
+  --border-100: 30 3.3% 11.8%;
+  --border-200: 30 3.3% 11.8%;
+  --border-300: 30 3.3% 11.8%;
+
+  /* Danger/error colors */
+  --danger-000: 0 61.4% 22.4%;
+  --danger-100: 0 58.6% 34.1%;
+  --danger-200: 0 58.6% 34.1%;
+  --danger-900: 0 50% 95%;
+
+  /* On-color (text on colored backgrounds) */
+  --oncolor-100: 0 0% 100%;
+
+  /* Always colors (don't change with theme) */
+  --always-white: 0 0% 100%;
+  --always-black: 0 0% 0%;
+
+  /* Spacing base */
+  --spacing: 0.25rem;
+
+  /* Border radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   BASE STYLES
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  background-color: hsl(var(--bg-100));
+  color: hsl(var(--text-100));
+}
+
+#root, #react-container {
+  height: 100%;
+}
+
+/* Scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsla(var(--border-300) / 35%) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsla(var(--border-300) / 35%);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsla(var(--border-300) / 50%);
+}
+
+/* Focus styles */
+button, input, textarea {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   TOOLTIP - Claude style
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.claude-tooltip-wrapper {
+  position: static;
+  display: inline-flex;
+}
+
+.claude-tooltip {
+  position: fixed;
+  padding: 4px 8px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.4;
+  white-space: nowrap;
+  color: hsl(var(--oncolor-100));
+  background-color: hsl(var(--always-black) / 80%);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+  z-index: 99999;
+}
+
+/* Tooltip visibility is now controlled by JavaScript state */

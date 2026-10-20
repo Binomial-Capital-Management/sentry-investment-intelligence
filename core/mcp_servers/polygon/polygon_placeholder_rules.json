@@ -1,0 +1,121 @@
+{
+  "placeholders": {
+    "options_ticker": {
+      "source": "normalized"
+    },
+    "option_contract": {
+      "source": "normalized"
+    },
+    "optionscontract": {
+      "source": "normalized"
+    },
+    "ticker": {
+      "source": "normalized"
+    },
+    "ticker.any_of": {
+      "source": "normalized"
+    },
+    "fx_ticker": {
+      "source": "normalized"
+    },
+    "crypto_ticker": {
+      "source": "normalized"
+    },
+    "underlying_asset": {
+      "source": "component",
+      "name": "underlying"
+    },
+    "underlying": {
+      "source": "component",
+      "name": "underlying"
+    },
+    "direction": {
+      "value": "gainers"
+    },
+    "multiplier": {
+      "value": 1
+    },
+    "timespan": {
+      "value": "day"
+    },
+    "from": {
+      "type": "date_offset",
+      "days": -7
+    },
+    "to": {
+      "type": "date_offset",
+      "days": 0
+    },
+    "date": {
+      "type": "today"
+    },
+    "option_contracts": {
+      "source": "normalized"
+    }
+  },
+  "dataset_overrides": {
+    "crypto-open-close": {
+      "from": {
+        "source": "component",
+        "name": "base"
+      },
+      "to": {
+        "source": "component",
+        "name": "quote"
+      },
+      "date": {
+        "type": "today"
+      }
+    },
+    "crypto-last-trade": {
+      "from": {
+        "source": "component",
+        "name": "base"
+      },
+      "to": {
+        "source": "component",
+        "name": "quote"
+      }
+    },
+    "forex-conversion": {
+      "from": {
+        "source": "component",
+        "name": "base"
+      },
+      "to": {
+        "source": "component",
+        "name": "quote"
+      }
+    },
+    "options-snapshot-single": {
+      "underlying_asset": {
+        "source": "component",
+        "name": "underlying"
+      },
+      "option_contract": {
+        "source": "normalized"
+      }
+    },
+    "options-snapshot-chain": {
+      "underlying_asset": {
+        "source": "component",
+        "name": "underlying"
+      }
+    },
+    "options-open-close": {
+      "date": {
+        "type": "today"
+      }
+    },
+    "options-aggregates-range": {
+      "from": {
+        "type": "date_offset",
+        "days": -7
+      },
+      "to": {
+        "type": "date_offset",
+        "days": 0
+      }
+    }
+  }
+}

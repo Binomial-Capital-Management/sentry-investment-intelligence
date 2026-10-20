@@ -1,0 +1,1392 @@
+{
+  "version": "0.1.0",
+  "last_updated": "2025-01-05",
+  "source": "Polygon.io REST API",
+  "normalization": {
+    "options": {
+      "type": "options_contract",
+      "prefix": "O:",
+      "detection": {
+        "prefixes": ["O:"],
+        "patterns": ["^[A-Z]+\\d{6}[CP]\\d{8}$"]
+      },
+      "pattern": "^(?:O:)?(?P<underlying>[A-Z]+)(?P<expiry>\\d{6})(?P<option_type>[CP])(?P<strike>\\d{8})$",
+      "transforms": {
+        "option_type": {"map": {"C": "call", "P": "put"}},
+        "strike": {"divide_by": 1000, "format": "float_trim"}
+      }
+    },
+    "forex": {
+      "type": "pair",
+      "prefix": "C:",
+      "separator": "",
+      "detection": {
+        "prefixes": ["C:"],
+        "patterns": ["^[A-Z]{3}[-/][A-Z]{3}$", "^[A-Z]{6}$"]
+      },
+      "pattern": "^(?:C:)?(?P<base>[A-Z]{3})[-/ ]?(?P<quote>[A-Z]{3})$"
+    },
+    "crypto": {
+      "type": "pair_compact",
+      "prefix": "X:",
+      "detection": {
+        "prefixes": ["X:"],
+        "patterns": ["^[A-Z0-9]+[-/][A-Z]{2,5}$", "^[A-Z0-9]{5,}$"]
+      },
+      "pattern": "^(?:X:)?(?P<base>[A-Z0-9]+)[-/]?(?P<quote>[A-Z]{2,5})$"
+    }
+  },
+  "placeholder_rules": {
+    "placeholders": {
+      "options_ticker": {
+        "source": "normalized"
+      },
+      "option_contract": {
+        "source": "normalized"
+      },
+      "optionscontract": {
+        "source": "normalized"
+      },
+      "ticker": {
+        "source": "normalized"
+      },
+      "ticker.any_of": {
+        "source": "normalized"
+      },
+      "fx_ticker": {
+        "source": "normalized"
+      },
+      "crypto_ticker": {
+        "source": "normalized"
+      },
+      "underlying_asset": {
+        "source": "component",
+        "name": "underlying"
+      },
+      "underlying": {
+        "source": "component",
+        "name": "underlying"
+      },
+      "direction": {
+        "value": "gainers"
+      },
+      "multiplier": {
+        "value": 1
+      },
+      "timespan": {
+        "value": "day"
+      },
+      "from": {
+        "type": "date_offset",
+        "days": -7
+      },
+      "to": {
+        "type": "date_offset",
+        "days": 0
+      },
+      "date": {
+        "type": "today"
+      },
+      "option_contracts": {
+        "source": "normalized"
+      }
+    },
+    "dataset_overrides": {
+      "crypto-open-close": {
+        "from": {
+          "source": "component",
+          "name": "base"
+        },
+        "to": {
+          "source": "component",
+          "name": "quote"
+        },
+        "date": {
+          "type": "today"
+        }
+      },
+      "crypto-last-trade": {
+        "from": {
+          "source": "component",
+          "name": "base"
+        },
+        "to": {
+          "source": "component",
+          "name": "quote"
+        }
+      },
+      "forex-conversion": {
+        "from": {
+          "source": "component",
+          "name": "base"
+        },
+        "to": {
+          "source": "component",
+          "name": "quote"
+        }
+      },
+      "options-snapshot-single": {
+        "underlying_asset": {
+          "source": "component",
+          "name": "underlying"
+        },
+        "option_contract": {
+          "source": "normalized"
+        }
+      },
+      "options-snapshot-chain": {
+        "underlying_asset": {
+          "source": "component",
+          "name": "underlying"
+        }
+      },
+      "options-open-close": {
+        "date": {
+          "type": "today"
+        }
+      },
+      "options-aggregates-range": {
+        "from": {
+          "type": "date_offset",
+          "days": -7
+        },
+        "to": {
+          "type": "date_offset",
+          "days": 0
+        }
+      }
+    }
+  },
+  "datasets": [
+    {
+      "dataset": "options-contracts-list",
+      "asset_group": [
+        "options"
+      ],
+      "asset_classes": [
+        "options"
+      ],
+      "class": "reference",
+      "discoverable": true,
+      "url": "/v3/reference/options/contracts",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {
+        "ticker": "string?",
+        "underlying_ticker": "string?",
+        "expiration_date": "date?",
+        "limit": "integer?",
+        "cursor": "string?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 900,
+      "notes": "List options contracts with optional filters."
+    },
+    {
+      "dataset": "options-contract-detail",
+      "asset_group": [
+        "options"
+      ],
+      "asset_classes": [
+        "options"
+      ],
+      "class": "reference",
+      "discoverable": true,
+      "url": "/v3/reference/options/contracts/{options_ticker}",
+      "method": "GET",
+      "identifier_param": "options_ticker",
+      "params_schema": {
+        "options_ticker": "string"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 1800,
+      "notes": "Return contract metadata for a specific options ticker."
+    },
+    {
+      "dataset": "options-aggregates-range",
+      "asset_group": [
+        "options"
+      ],
+      "asset_classes": [
+        "options"
+      ],
+      "class": "timeseries",
+      "discoverable": true,
+      "url": "/v2/aggs/ticker/{options_ticker}/range/{multiplier}/{timespan}/{from}/{to}",
+      "method": "GET",
+      "identifier_param": "options_ticker",
+      "params_schema": {
+        "options_ticker": "string",
+        "multiplier": "integer",
+        "timespan": "enum[minute, hour, day, week, month, quarter, year]",
+        "from": "datetime",
+        "to": "datetime",
+        "adjusted": "boolean?",
+        "sort": "enum[asc, desc]?",
+        "limit": "integer?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 300,
+      "notes": "Aggregated OHLCV bars for options tickers."
+    },
+    {
+      "dataset": "options-open-close",
+      "asset_group": [
+        "options"
+      ],
+      "asset_classes": [
+        "options"
+      ],
+      "class": "market",
+      "discoverable": true,
+      "url": "/v1/open-close/{options_ticker}/{date}",
+      "method": "GET",
+      "identifier_param": "options_ticker",
+      "params_schema": {
+        "options_ticker": "string",
+        "date": "date",
+        "adjusted": "boolean?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 86400,
+      "notes": "Daily open/high/low/close summary for an options contract."
+    },
+    {
+      "dataset": "options-prev-close",
+      "asset_group": [
+        "options"
+      ],
+      "asset_classes": [
+        "options"
+      ],
+      "class": "market",
+      "discoverable": true,
+      "url": "/v2/aggs/ticker/{options_ticker}/prev",
+      "method": "GET",
+      "identifier_param": "options_ticker",
+      "params_schema": {
+        "options_ticker": "string",
+        "adjusted": "boolean?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 900,
+      "notes": "Previous trading day aggregate for options contracts."
+    },
+    {
+      "dataset": "options-snapshot-single",
+      "asset_group": [
+        "options"
+      ],
+      "asset_classes": [
+        "options"
+      ],
+      "class": "snapshot",
+      "discoverable": true,
+      "url": "/v3/snapshot/options/{underlying_asset}/{option_contract}",
+      "method": "GET",
+      "identifier_param": "option_contract",
+      "params_schema": {
+        "underlying_asset": "string",
+        "option_contract": "string"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 60,
+      "notes": "Snapshot for a single option contract."
+    },
+    {
+      "dataset": "options-snapshot-chain",
+      "asset_group": [
+        "options"
+      ],
+      "asset_classes": [
+        "options"
+      ],
+      "class": "snapshot",
+      "discoverable": true,
+      "url": "/v3/snapshot/options/{underlying_asset}",
+      "method": "GET",
+      "identifier_param": "underlying_asset",
+  "params_schema": {
+    "underlying_asset": "string",
+    "limit": "integer?",
+    "cursor": "string?",
+    "expiration_date.gte": "string?",
+    "expiration_date.lte": "string?",
+    "strike_price.gte": "number?",
+    "strike_price.lte": "number?",
+    "contract_type": "string?"
+  },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 120,
+      "notes": "Snapshot of entire option chain for an underlying asset."
+    },
+    {
+      "dataset": "snapshot-unified",
+      "asset_group": [
+        "options",
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "options",
+        "forex",
+        "crypto"
+      ],
+      "class": "snapshot",
+      "discoverable": true,
+      "url": "/v3/snapshot",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {
+        "ticker.any_of": "string?",
+        "market": "enum[stocks, options, forex, crypto]?",
+        "limit": "integer?",
+        "cursor": "string?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 60,
+      "notes": "Unified snapshot endpoint for multiple asset classes."
+    },
+    {
+      "dataset": "options-trades",
+      "asset_group": [
+        "options"
+      ],
+      "asset_classes": [
+        "options"
+      ],
+      "class": "trades",
+      "discoverable": true,
+      "url": "/v3/trades/{options_ticker}",
+      "method": "GET",
+      "identifier_param": "options_ticker",
+      "params_schema": {
+        "options_ticker": "string",
+        "timestamp.gt": "datetime?",
+        "timestamp.lt": "datetime?",
+        "limit": "integer?",
+        "sort": "enum[asc, desc]?",
+        "cursor": "string?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 300,
+      "notes": "Historical options trades feed."
+    },
+    {
+      "dataset": "options-last-trade",
+      "asset_group": [
+        "options"
+      ],
+      "asset_classes": [
+        "options"
+      ],
+      "class": "trades",
+      "discoverable": true,
+      "url": "/v2/last/trade/{options_ticker}",
+      "method": "GET",
+      "identifier_param": "options_ticker",
+      "params_schema": {
+        "options_ticker": "string"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 30,
+      "notes": "Most recent trade for an options contract."
+    },
+    {
+      "dataset": "options-quotes",
+      "asset_group": [
+        "options"
+      ],
+      "asset_classes": [
+        "options"
+      ],
+      "class": "quotes",
+      "discoverable": true,
+      "url": "/v3/quotes/{options_ticker}",
+      "method": "GET",
+      "identifier_param": "options_ticker",
+      "params_schema": {
+        "options_ticker": "string",
+        "timestamp.gt": "datetime?",
+        "timestamp.lt": "datetime?",
+        "limit": "integer?",
+        "sort": "enum[asc, desc]?",
+        "cursor": "string?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 120,
+      "notes": "Historical bid/ask quotes for options."
+    },
+    {
+      "dataset": "options-indicator-sma",
+      "asset_group": [
+        "options"
+      ],
+      "asset_classes": [
+        "options"
+      ],
+      "class": "technical",
+      "discoverable": false,
+      "url": "/v1/indicators/sma/{options_ticker}",
+      "method": "GET",
+      "identifier_param": "options_ticker",
+      "params_schema": {
+        "options_ticker": "string",
+        "timespan": "enum[minute, hour, day]?",
+        "window": "integer",
+        "series_type": "enum[close, open, high, low]?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 600,
+      "notes": "Simple moving average for options strike series."
+    },
+    {
+      "dataset": "options-indicator-ema",
+      "asset_group": [
+        "options"
+      ],
+      "asset_classes": [
+        "options"
+      ],
+      "class": "technical",
+      "discoverable": false,
+      "url": "/v1/indicators/ema/{options_ticker}",
+      "method": "GET",
+      "identifier_param": "options_ticker",
+      "params_schema": {
+        "options_ticker": "string",
+        "timespan": "enum[minute, hour, day]?",
+        "window": "integer",
+        "series_type": "enum[close, open, high, low]?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 600,
+      "notes": "Exponential moving average for options price series."
+    },
+    {
+      "dataset": "options-indicator-macd",
+      "asset_group": [
+        "options"
+      ],
+      "asset_classes": [
+        "options"
+      ],
+      "class": "technical",
+      "discoverable": false,
+      "url": "/v1/indicators/macd/{options_ticker}",
+      "method": "GET",
+      "identifier_param": "options_ticker",
+      "params_schema": {
+        "options_ticker": "string",
+        "fast": "integer?",
+        "slow": "integer?",
+        "signal": "integer?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 600,
+      "notes": "MACD indicator for options price series."
+    },
+    {
+      "dataset": "options-indicator-rsi",
+      "asset_group": [
+        "options"
+      ],
+      "asset_classes": [
+        "options"
+      ],
+      "class": "technical",
+      "discoverable": false,
+      "url": "/v1/indicators/rsi/{options_ticker}",
+      "method": "GET",
+      "identifier_param": "options_ticker",
+      "params_schema": {
+        "options_ticker": "string",
+        "window": "integer"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 600,
+      "notes": "RSI indicator for options price series."
+    },
+    {
+      "dataset": "reference-exchanges",
+      "asset_group": [
+        "options",
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "options",
+        "forex",
+        "crypto"
+      ],
+      "class": "reference",
+      "discoverable": true,
+      "url": "/v3/reference/exchanges",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {
+        "asset_class": "string?",
+        "locale": "string?",
+        "limit": "integer?",
+        "cursor": "string?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 86400,
+      "notes": "Exchange directory across asset classes."
+    },
+    {
+      "dataset": "marketstatus-upcoming",
+      "asset_group": [
+        "options",
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "options",
+        "forex",
+        "crypto"
+      ],
+      "class": "operations",
+      "discoverable": true,
+      "url": "/v1/marketstatus/upcoming",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {},
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 3600,
+      "notes": "Upcoming market holidays and closures."
+    },
+    {
+      "dataset": "marketstatus-now",
+      "asset_group": [
+        "options",
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "options",
+        "forex",
+        "crypto"
+      ],
+      "class": "operations",
+      "discoverable": true,
+      "url": "/v1/marketstatus/now",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {},
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 30,
+      "notes": "Current market status (open/closed)."
+    },
+    {
+      "dataset": "reference-conditions",
+      "asset_group": [
+        "options",
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "options"
+      ],
+      "class": "reference",
+      "discoverable": true,
+      "url": "/v3/reference/conditions",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {
+        "asset_class": "string?",
+        "type": "string?",
+        "limit": "integer?",
+        "cursor": "string?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 604800,
+      "notes": "Trade and quote condition codes."
+    },
+    {
+      "dataset": "forex-tickers",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "forex"
+      ],
+      "class": "reference",
+      "discoverable": true,
+      "url": "/v3/reference/tickers",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {
+        "market": "enum[fx]",
+        "search": "string?",
+        "active": "boolean?",
+        "limit": "integer?",
+        "cursor": "string?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 86400,
+      "notes": "List Forex tickers."
+    },
+    {
+      "dataset": "forex-ticker-detail",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "forex"
+      ],
+      "class": "reference",
+      "discoverable": true,
+      "url": "/v3/reference/tickers/{ticker}",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 86400,
+      "notes": "Forex ticker metadata."
+    },
+    {
+      "dataset": "forex-conversion",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "forex"
+      ],
+      "class": "market",
+      "discoverable": true,
+      "url": "/v1/conversion/{from}/{to}",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {
+        "from": "string",
+        "to": "string",
+        "amount": "number?",
+        "precision": "integer?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 60,
+      "notes": "Real-time currency conversion."
+    },
+    {
+      "dataset": "forex-aggregates-range",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "forex"
+      ],
+      "class": "timeseries",
+      "discoverable": true,
+      "url": "/v2/aggs/ticker/{fx_ticker}/range/{multiplier}/{timespan}/{from}/{to}",
+      "method": "GET",
+      "identifier_param": "fx_ticker",
+      "params_schema": {
+        "fx_ticker": "string",
+        "multiplier": "integer",
+        "timespan": "enum[minute, hour, day, week, month, quarter, year]",
+        "from": "datetime",
+        "to": "datetime",
+        "sort": "enum[asc, desc]?",
+        "limit": "integer?",
+        "adjusted": "boolean?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 300,
+      "notes": "Aggregated FX OHLC data."
+    },
+    {
+      "dataset": "forex-aggregates-grouped",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "forex"
+      ],
+      "class": "timeseries",
+      "discoverable": true,
+      "url": "/v2/aggs/grouped/locale/global/market/fx/{date}",
+      "method": "GET",
+      "identifier_param": "date",
+      "params_schema": {
+        "date": "date",
+        "adjusted": "boolean?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 900,
+      "notes": "Daily aggregate summary for all FX pairs."
+    },
+    {
+      "dataset": "forex-aggregates-prev",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "forex"
+      ],
+      "class": "market",
+      "discoverable": true,
+      "url": "/v2/aggs/ticker/{fx_ticker}/prev",
+      "method": "GET",
+      "identifier_param": "fx_ticker",
+      "params_schema": {
+        "fx_ticker": "string",
+        "adjusted": "boolean?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 300,
+      "notes": "Previous day FX aggregate."
+    },
+    {
+      "dataset": "forex-snapshot-single",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "forex"
+      ],
+      "class": "snapshot",
+      "discoverable": true,
+      "url": "/v2/snapshot/locale/global/markets/forex/tickers/{ticker}",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 60,
+      "notes": "Snapshot for a single FX ticker."
+    },
+    {
+      "dataset": "forex-snapshot-market",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "forex"
+      ],
+      "class": "snapshot",
+      "discoverable": true,
+      "url": "/v2/snapshot/locale/global/markets/forex/tickers",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {
+        "limit": "integer?",
+        "cursor": "string?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 60,
+      "notes": "Snapshot for all FX pairs."
+    },
+    {
+      "dataset": "forex-snapshot-movers",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "forex"
+      ],
+      "class": "snapshot",
+      "discoverable": true,
+      "url": "/v2/snapshot/locale/global/markets/forex/{direction}",
+      "method": "GET",
+      "identifier_param": "direction",
+      "params_schema": {
+        "direction": "enum[gainers, losers]",
+        "limit": "integer?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 60,
+      "notes": "Top FX market movers."
+    },
+    {
+      "dataset": "forex-quotes",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "forex"
+      ],
+      "class": "quotes",
+      "discoverable": true,
+      "url": "/v3/quotes/{fx_ticker}",
+      "method": "GET",
+      "identifier_param": "fx_ticker",
+      "params_schema": {
+        "fx_ticker": "string",
+        "timestamp.gt": "datetime?",
+        "timestamp.lt": "datetime?",
+        "limit": "integer?",
+        "sort": "enum[asc, desc]?",
+        "cursor": "string?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 120,
+      "notes": "Historical FX quotes."
+    },
+    {
+      "dataset": "forex-indicator-sma",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "forex"
+      ],
+      "class": "technical",
+      "discoverable": false,
+      "url": "/v1/indicators/sma/{fx_ticker}",
+      "method": "GET",
+      "identifier_param": "fx_ticker",
+      "params_schema": {
+        "fx_ticker": "string",
+        "timespan": "enum[minute, hour, day]?",
+        "window": "integer",
+        "series_type": "enum[close, open, high, low]?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 600,
+      "notes": "SMA indicator for FX pairs."
+    },
+    {
+      "dataset": "forex-indicator-ema",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "forex"
+      ],
+      "class": "technical",
+      "discoverable": false,
+      "url": "/v1/indicators/ema/{fx_ticker}",
+      "method": "GET",
+      "identifier_param": "fx_ticker",
+      "params_schema": {
+        "fx_ticker": "string",
+        "timespan": "enum[minute, hour, day]?",
+        "window": "integer",
+        "series_type": "enum[close, open, high, low]?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 600,
+      "notes": "EMA indicator for FX pairs."
+    },
+    {
+      "dataset": "forex-indicator-macd",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "forex"
+      ],
+      "class": "technical",
+      "discoverable": false,
+      "url": "/v1/indicators/macd/{fx_ticker}",
+      "method": "GET",
+      "identifier_param": "fx_ticker",
+      "params_schema": {
+        "fx_ticker": "string",
+        "fast": "integer?",
+        "slow": "integer?",
+        "signal": "integer?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 600,
+      "notes": "MACD for FX pairs."
+    },
+    {
+      "dataset": "forex-indicator-rsi",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "forex"
+      ],
+      "class": "technical",
+      "discoverable": false,
+      "url": "/v1/indicators/rsi/{fx_ticker}",
+      "method": "GET",
+      "identifier_param": "fx_ticker",
+      "params_schema": {
+        "fx_ticker": "string",
+        "window": "integer"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 600,
+      "notes": "RSI for FX pairs."
+    },
+    {
+      "dataset": "crypto-tickers",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "crypto"
+      ],
+      "class": "reference",
+      "discoverable": true,
+      "url": "/v3/reference/tickers",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {
+        "market": "enum[crypto]",
+        "search": "string?",
+        "active": "boolean?",
+        "limit": "integer?",
+        "cursor": "string?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 86400,
+      "notes": "List crypto tickers."
+    },
+    {
+      "dataset": "crypto-ticker-detail",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "crypto"
+      ],
+      "class": "reference",
+      "discoverable": true,
+      "url": "/v3/reference/tickers/{ticker}",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 86400,
+      "notes": "Crypto ticker metadata."
+    },
+    {
+      "dataset": "crypto-aggregates-range",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "crypto"
+      ],
+      "class": "timeseries",
+      "discoverable": true,
+      "url": "/v2/aggs/ticker/{crypto_ticker}/range/{multiplier}/{timespan}/{from}/{to}",
+      "method": "GET",
+      "identifier_param": "crypto_ticker",
+      "params_schema": {
+        "crypto_ticker": "string",
+        "multiplier": "integer",
+        "timespan": "enum[minute, hour, day, week, month, quarter, year]",
+        "from": "datetime",
+        "to": "datetime",
+        "sort": "enum[asc, desc]?",
+        "limit": "integer?",
+        "adjusted": "boolean?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 300,
+      "notes": "Aggregated crypto OHLC data."
+    },
+    {
+      "dataset": "crypto-aggregates-grouped",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "crypto"
+      ],
+      "class": "timeseries",
+      "discoverable": true,
+      "url": "/v2/aggs/grouped/locale/global/market/crypto/{date}",
+      "method": "GET",
+      "identifier_param": "date",
+      "params_schema": {
+        "date": "date",
+        "adjusted": "boolean?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 900,
+      "notes": "Daily aggregate summary for all crypto pairs."
+    },
+    {
+      "dataset": "crypto-open-close",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "crypto"
+      ],
+      "class": "market",
+      "discoverable": true,
+      "url": "/v1/open-close/crypto/{from}/{to}/{date}",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {
+        "from": "string",
+        "to": "string",
+        "date": "date"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 86400,
+      "notes": "Daily open/close summary for crypto pairs."
+    },
+    {
+      "dataset": "crypto-aggregates-prev",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "crypto"
+      ],
+      "class": "market",
+      "discoverable": true,
+      "url": "/v2/aggs/ticker/{crypto_ticker}/prev",
+      "method": "GET",
+      "identifier_param": "crypto_ticker",
+      "params_schema": {
+        "crypto_ticker": "string",
+        "adjusted": "boolean?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 300,
+      "notes": "Previous day crypto aggregate."
+    },
+    {
+      "dataset": "crypto-snapshot-single",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "crypto"
+      ],
+      "class": "snapshot",
+      "discoverable": true,
+      "url": "/v2/snapshot/locale/global/markets/crypto/tickers/{ticker}",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 60,
+      "notes": "Snapshot for a single crypto pair."
+    },
+    {
+      "dataset": "crypto-snapshot-market",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "crypto"
+      ],
+      "class": "snapshot",
+      "discoverable": true,
+      "url": "/v2/snapshot/locale/global/markets/crypto/tickers",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {
+        "limit": "integer?",
+        "cursor": "string?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 60,
+      "notes": "Snapshot for all crypto pairs."
+    },
+    {
+      "dataset": "crypto-snapshot-movers",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "crypto"
+      ],
+      "class": "snapshot",
+      "discoverable": true,
+      "url": "/v2/snapshot/locale/global/markets/crypto/{direction}",
+      "method": "GET",
+      "identifier_param": "direction",
+      "params_schema": {
+        "direction": "enum[gainers, losers]",
+        "limit": "integer?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 60,
+      "notes": "Top crypto market movers."
+    },
+    {
+      "dataset": "crypto-trades",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "crypto"
+      ],
+      "class": "trades",
+      "discoverable": true,
+      "url": "/v3/trades/{crypto_ticker}",
+      "method": "GET",
+      "identifier_param": "crypto_ticker",
+      "params_schema": {
+        "crypto_ticker": "string",
+        "timestamp.gt": "datetime?",
+        "timestamp.lt": "datetime?",
+        "limit": "integer?",
+        "sort": "enum[asc, desc]?",
+        "cursor": "string?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 300,
+      "notes": "Crypto trade history."
+    },
+    {
+      "dataset": "crypto-last-trade",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "crypto"
+      ],
+      "class": "trades",
+      "discoverable": true,
+      "url": "/v1/last/crypto/{from}/{to}",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {
+        "from": "string",
+        "to": "string"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 30,
+      "notes": "Most recent trade for a crypto pair."
+    },
+    {
+      "dataset": "crypto-indicator-sma",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "crypto"
+      ],
+      "class": "technical",
+      "discoverable": false,
+      "url": "/v1/indicators/sma/{crypto_ticker}",
+      "method": "GET",
+      "identifier_param": "crypto_ticker",
+      "params_schema": {
+        "crypto_ticker": "string",
+        "timespan": "enum[minute, hour, day]?",
+        "window": "integer",
+        "series_type": "enum[close, open, high, low]?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 600,
+      "notes": "SMA for crypto pairs."
+    },
+    {
+      "dataset": "crypto-indicator-ema",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "crypto"
+      ],
+      "class": "technical",
+      "discoverable": false,
+      "url": "/v1/indicators/ema/{crypto_ticker}",
+      "method": "GET",
+      "identifier_param": "crypto_ticker",
+      "params_schema": {
+        "crypto_ticker": "string",
+        "timespan": "enum[minute, hour, day]?",
+        "window": "integer",
+        "series_type": "enum[close, open, high, low]?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 600,
+      "notes": "EMA for crypto pairs."
+    },
+    {
+      "dataset": "crypto-indicator-macd",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "crypto"
+      ],
+      "class": "technical",
+      "discoverable": false,
+      "url": "/v1/indicators/macd/{crypto_ticker}",
+      "method": "GET",
+      "identifier_param": "crypto_ticker",
+      "params_schema": {
+        "crypto_ticker": "string",
+        "fast": "integer?",
+        "slow": "integer?",
+        "signal": "integer?"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 600,
+      "notes": "MACD for crypto pairs."
+    },
+    {
+      "dataset": "crypto-indicator-rsi",
+      "asset_group": [
+        "crypto_fx"
+      ],
+      "asset_classes": [
+        "crypto"
+      ],
+      "class": "technical",
+      "discoverable": false,
+      "url": "/v1/indicators/rsi/{crypto_ticker}",
+      "method": "GET",
+      "identifier_param": "crypto_ticker",
+      "params_schema": {
+        "crypto_ticker": "string",
+        "window": "integer"
+      },
+      "rate_limit": {
+        "per_minute": 50,
+        "burst": 100
+      },
+      "cache_ttl": 600,
+      "notes": "RSI for crypto pairs."
+    }
+  ]
+}

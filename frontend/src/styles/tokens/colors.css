@@ -1,0 +1,112 @@
+:root {
+  /* Microsoft Fluent 2 Theme */
+  
+  /* Core Microsoft Fluent 2 Colors (2025) */
+  --sentry-navy: #323130;        /* Primary text */
+  --sentry-slate: #605E5C;       /* Secondary text */
+  --sentry-gray-50: #FAF9F8;     /* Warm light background */
+  --sentry-gray-100: #F3F2F1;    /* Subtle background */
+  --sentry-gray-200: #EDEBE9;    /* Hover states */
+  --sentry-gray-300: #E5E5E5;    /* Light borders */
+  --sentry-gray-400: #D2D0CE;    /* Standard borders */
+  --sentry-blue: #0078D4;        /* Microsoft blue accent */
+  --sentry-emerald: #107C10;     /* Success green */
+  --sentry-red: #D13438;         /* Error red */
+  --sentry-gold: #FFB900;        /* Warning gold */
+  
+  /* Font System - Microsoft Fluent 2 */
+  /* Segoe UI Variable for modern Windows 11 feel */
+  --font-primary: "Segoe UI Variable", "Segoe UI", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  --font-institutional: "Segoe UI Variable", "Segoe UI", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  --font-mono-institutional: "Cascadia Code", "SF Mono", "Consolas", "JetBrains Mono", "Roboto Mono", SFMono-Regular, Menlo, monospace;
+  
+  /* Background hierarchy - Microsoft Fluent 2 */
+  --bg-void: #FFFFFF;
+  --bg-base: #FFFFFF;
+  --bg-surface: #FAF9F8;
+  --bg-subtle: #F3F2F1;
+  --bg-overlay: #FFFFFF;
+  --bg-elevated: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-hover: #F3F2F1;
+  --bg-active: #EDEBE9;
+  
+  /* Text - Microsoft Fluent Colors */
+  --text-primary: #323130;
+  --text-secondary: #605e5c;
+  --text-tertiary: #8a8886;
+  --text-muted: #a19f9d;
+  --text-inverse: #FFFFFF;
+  
+  /* Primary Accent Colors - Microsoft */
+  --accent: #0078D4;
+  --accent-hover: #106EBE;
+  --accent-active: #005A9E;
+  --accent-subtle: #F0F9FF;
+  --accent-secondary: #40E0D0;
+  
+  /* Status Colors */
+  --success: #00C853;
+  --success-bg: #E8F5E9;
+  --success-border: #4CAF50;
+  --warning: #FF9800;
+  --warning-bg: #FFF3E0;
+  --warning-border: #FFB74D;
+  --danger: #F44336;
+  --danger-bg: #FFEBEE;
+  --danger-border: #EF5350;
+  --info: #2196F3;
+  --info-bg: #E3F2FD;
+  --info-border: #64B5F6;
+  
+  /* Borders - Microsoft Fluent 2 */
+  --border-subtle: #F3F2F1;
+  --border: #E5E5E5;
+  --border-strong: #D2D0CE;
+  --border-accent: var(--accent);
+  --border-focus: var(--accent);
+  --border-light: #EDEBE9;
+  
+  /* Shadows - Microsoft Fluent 2 Depth System */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.024);
+  --shadow-sm: 0 1.6px 3.6px rgba(0, 0, 0, 0.11);
+  --shadow-md: 0 3.2px 7.2px rgba(0, 0, 0, 0.11);
+  --shadow-lg: 0 6.4px 14.4px rgba(0, 0, 0, 0.11);
+  --shadow-xl: 0 12.8px 28.8px rgba(0, 0, 0, 0.11);
+  --shadow-2xl: 0 25.6px 57.6px rgba(0, 0, 0, 0.11);
+  --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-card: 0 1.6px 3.6px rgba(0, 0, 0, 0.11);
+  
+  /* Glows & Focus States */
+  --glow-accent: 0 0 0 3px rgba(0, 102, 255, 0.1);
+  --glow-success: 0 0 0 3px rgba(0, 200, 83, 0.1);
+  --glow-danger: 0 0 0 3px rgba(244, 67, 54, 0.1);
+  
+  /* Chart palette (Professional colors) */
+  --chart-1: #0066FF;
+  --chart-2: #00A3FF;
+  --chart-3: #00C853;
+  --chart-4: #FFB300;
+  --chart-5: #FF6B6B;
+  --chart-6: #7B61FF;
+  --chart-7: #6B7280;
+  
+  /* Interactive States */
+  --hover-bg: rgba(0, 102, 255, 0.04);
+  --active-bg: rgba(0, 102, 255, 0.08);
+  --selected-bg: rgba(0, 102, 255, 0.12);
+  
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #0066FF 0%, #0052D9 100%);
+  --gradient-success: linear-gradient(135deg, #00C896 0%, #00A67E 100%);
+  --gradient-shimmer: linear-gradient(90deg, rgba(0,102,255,0) 0%, rgba(0,102,255,0.05) 50%, rgba(0,102,255,0) 100%);
+  
+  /* Overlays */
+  --overlay-backdrop: rgba(0, 0, 0, 0.4);
+  --overlay-scrim: rgba(0, 0, 0, 0.6);
+  
+  /* Border Radius - Microsoft Fluent */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}

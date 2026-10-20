@@ -1,0 +1,46 @@
+{
+  "label": "8_torus_circadian",
+  "row_count": 100000,
+  "surface_name": "bounded_patch",
+  "genus": 0,
+  "orientable": true,
+  "euler_characteristic": 2,
+  "classification_mode": "validated_2d_faces",
+  "surface_confidence": 1.0,
+  "betti_0": 1,
+  "betti_1": 57601,
+  "vertex_count": 1440,
+  "edge_count": 59040,
+  "face_count": 1357,
+  "exported_faces": 1357,
+  "face_coverage": 1.0,
+  "occupancy": 1.0,
+  "boundary_edge_count": 164,
+  "boundary_loop_count": 1,
+  "face_euler_characteristic": 1,
+  "face_genus_estimate": 0.0,
+  "axes": [
+    {
+      "column": "hour",
+      "type": "categorical",
+      "size": 24,
+      "wraps": false,
+      "wrap_orientation": 0,
+      "ordered": false
+    },
+    {
+      "column": "minute",
+      "type": "categorical",
+      "size": 60,
+      "wraps": false,
+      "wrap_orientation": 0,
+      "ordered": false
+    }
+  ],
+  "field_columns": [
+    "activity",
+    "heart_rate"
+  ],
+  "primary_field": "activity",
+  "build_ms": 1376.1
+}

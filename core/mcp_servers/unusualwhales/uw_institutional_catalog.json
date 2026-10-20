@@ -1,0 +1,381 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2025-12-01",
+  "source": "Unusual Whales API - Institutional & Political Flow Data",
+  "base_url": "https://api.unusualwhales.com",
+  "notes": "Institutional ownership, congressional trading, insider transactions, and dark pool activity from Unusual Whales",
+  "enums": {
+    "order": ["desc", "asc"],
+    "transaction_type": ["buy", "sell", "exchange"],
+    "sector": ["Basic Materials", "Communication Services", "Consumer Cyclical", "Consumer Defensive", "Energy", "Financial Services", "Healthcare", "Industrials", "Real Estate", "Technology", "Utilities"]
+  },
+  "datasets": [
+    {
+      "dataset": "congress-trader-reports",
+      "class": "congressional",
+      "discoverable": true,
+      "url": "/api/congress/congress-trader",
+      "method": "GET",
+      "identifier_param": "name",
+      "params_schema": {
+        "name": "string?",
+        "date": "date?",
+        "limit": "integer?",
+        "ticker": "string?"
+      },
+      "param_defaults": {
+        "name": "Nancy Pelosi",
+        "limit": 50
+      },
+      "param_constraints": {
+        "limit": {"min": 1, "max": 200}
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 300,
+      "notes": "Purpose: Recent trading reports by a specific congress member. Optional: name (default Nancy Pelosi, URI encode spaces), date, limit (1-200), ticker filter. Output: Trade disclosures including ticker, transaction type, amount ranges, filing dates. Use for tracking individual politician trades, monitoring STOCK Act disclosures, and analyzing congressional trading patterns."
+    },
+    {
+      "dataset": "congress-late-reports",
+      "class": "congressional",
+      "discoverable": true,
+      "url": "/api/congress/late-reports",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {
+        "date": "date?",
+        "limit": "integer?",
+        "ticker": "string?"
+      },
+      "param_defaults": {
+        "limit": 50
+      },
+      "param_constraints": {
+        "limit": {"min": 1, "max": 200}
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 300,
+      "notes": "Purpose: Late-filed trading disclosures by congress members (STOCK Act violations). Optional: date (returns reports with report_date <= date), limit (1-200), ticker filter. Output: Late filings with original transaction date, late filing date, and delay duration. Use for identifying STOCK Act compliance issues, tracking politicians who consistently file late, and analyzing patterns in delayed disclosures."
+    },
+    {
+      "dataset": "congress-recent-trades",
+      "class": "congressional",
+      "discoverable": true,
+      "url": "/api/congress/recent-trades",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {
+        "date": "date?",
+        "limit": "integer?",
+        "ticker": "string?"
+      },
+      "param_defaults": {
+        "limit": 50
+      },
+      "param_constraints": {
+        "limit": {"min": 1, "max": 200}
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 300,
+      "notes": "Purpose: Latest transacted trades by all congress members. Optional: date (returns trades with transaction_date <= date), limit (1-200), ticker filter. Output: Recent trades with congress member name, ticker, transaction type, amount range, transaction/disclosure dates. Use for real-time congressional trading feed, identifying trending tickers among politicians, and broad market sentiment from political trades."
+    },
+    {
+      "dataset": "darkpool-recent-trades",
+      "class": "darkpool",
+      "discoverable": true,
+      "url": "/api/darkpool/recent",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {
+        "date": "date?",
+        "limit": "integer?",
+        "min_premium": "integer?",
+        "max_premium": "integer?",
+        "min_size": "integer?",
+        "max_size": "integer?",
+        "min_volume": "integer?",
+        "max_volume": "integer?"
+      },
+      "param_defaults": {
+        "limit": 50,
+        "min_premium": 0,
+        "min_size": 0,
+        "min_volume": 0
+      },
+      "param_constraints": {
+        "limit": {"min": 1, "max": 200},
+        "min_premium": {"min": 0},
+        "min_size": {"min": 0},
+        "min_volume": {"min": 0}
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 60,
+      "notes": "Purpose: Latest dark pool (off-exchange) trades across all tickers. Optional: date, limit (1-200), min/max filters for premium, size, and consolidated volume. Output: Dark pool prints with ticker, size, price, premium, timestamp, and venue. Use for detecting large institutional block trades, identifying accumulation/distribution patterns, and tracking off-exchange activity that may signal institutional positioning."
+    },
+    {
+      "dataset": "darkpool-ticker-trades",
+      "class": "darkpool",
+      "discoverable": true,
+      "url": "/api/darkpool/{ticker}",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "date": "date?",
+        "limit": "integer?",
+        "min_premium": "integer?",
+        "max_premium": "integer?",
+        "min_size": "integer?",
+        "max_size": "integer?",
+        "min_volume": "integer?",
+        "max_volume": "integer?",
+        "newer_than": "string?",
+        "older_than": "string?"
+      },
+      "param_defaults": {
+        "limit": 50,
+        "min_premium": 0,
+        "min_size": 0,
+        "min_volume": 0
+      },
+      "param_constraints": {
+        "limit": {"min": 1, "max": 500},
+        "min_premium": {"min": 0},
+        "min_size": {"min": 0},
+        "min_volume": {"min": 0}
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 60,
+      "notes": "Purpose: Dark pool trades for a specific ticker on a given day. Required: ticker. Optional: date, limit (1-500), min/max filters for premium/size/volume, newer_than/older_than for time pagination (unix ms/s or ISO date). Output: Individual dark pool prints with size, price, premium, timestamp, venue. Use for ticker-specific institutional flow analysis, detecting block accumulation/distribution, and correlating dark pool activity with price action."
+    },
+    {
+      "dataset": "etf-exposure",
+      "class": "etf",
+      "discoverable": true,
+      "url": "/api/etfs/{ticker}/exposure",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string"
+      },
+      "rate_limit": {"rps": 10, "burst": 30},
+      "cache_ttl": 3600,
+      "notes": "Purpose: Find all ETFs that hold a specific stock. Required: ticker. Output: List of ETFs containing the ticker with weight/allocation, shares held, and ETF details. Use for understanding passive flow exposure, identifying which ETFs drive rebalancing activity, analyzing sector/thematic exposure, and tracking potential forced buying/selling from ETF flows."
+    },
+    {
+      "dataset": "etf-holdings",
+      "class": "etf",
+      "discoverable": true,
+      "url": "/api/etfs/{ticker}/holdings",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string"
+      },
+      "rate_limit": {"rps": 10, "burst": 30},
+      "cache_ttl": 3600,
+      "notes": "Purpose: Get all holdings within an ETF. Required: ticker (ETF symbol). Output: List of constituent stocks with weight/allocation, shares held, market value, and sector. Use for ETF composition analysis, understanding sector/factor tilts, identifying top holdings driving ETF performance, and tracking rebalancing opportunities."
+    },
+    {
+      "dataset": "etf-inflow-outflow",
+      "class": "etf",
+      "discoverable": true,
+      "url": "/api/etfs/{ticker}/in-outflow",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string"
+      },
+      "rate_limit": {"rps": 10, "burst": 30},
+      "cache_ttl": 300,
+      "notes": "Purpose: Track ETF fund flows (creations/redemptions). Required: ticker (ETF symbol). Output: Time series of inflows and outflows in dollar terms, net flow, and shares outstanding changes. Use for gauging investor sentiment toward sectors/themes, predicting rebalancing pressure on underlying holdings, identifying rotation trends, and correlating flows with price momentum."
+    },
+    {
+      "dataset": "etf-weights",
+      "class": "etf",
+      "discoverable": true,
+      "url": "/api/etfs/{ticker}/weights",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string"
+      },
+      "rate_limit": {"rps": 10, "burst": 30},
+      "cache_ttl": 3600,
+      "notes": "Purpose: Get sector and country allocation breakdown for an ETF. Required: ticker (ETF symbol). Output: Percentage weights by sector (Technology, Healthcare, etc.) and by country (US, China, etc.). Use for portfolio diversification analysis, comparing ETF exposures, understanding geographic/sector concentration risk, and selecting ETFs for specific allocation targets."
+    },
+    {
+      "dataset": "insider-transactions",
+      "class": "insider",
+      "discoverable": true,
+      "url": "/api/insider/transactions",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {
+        "ticker_symbol": "string?",
+        "limit": "integer?",
+        "page": "integer?",
+        "owner_name": "string?",
+        "is_director": "boolean?",
+        "is_officer": "boolean?",
+        "is_ten_percent_owner": "boolean?",
+        "common_stock_only": "boolean?",
+        "is_s_p_500": "boolean?",
+        "transaction_codes[]": "array[string]?",
+        "security_ad_codes": "string?",
+        "min_value": "string?",
+        "max_value": "string?",
+        "min_amount": "string?",
+        "max_amount": "string?",
+        "min_price": "string?",
+        "max_price": "string?",
+        "min_marketcap": "integer?",
+        "max_marketcap": "integer?",
+        "min_earnings_dte": "string?",
+        "max_earnings_dte": "string?",
+        "market_cap_size": "string?",
+        "sectors": "string?",
+        "industries": "string?"
+      },
+      "param_defaults": {
+        "limit": 50
+      },
+      "param_constraints": {
+        "limit": {"min": 1, "max": 500},
+        "min_marketcap": {"min": 0},
+        "max_marketcap": {"min": 0}
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 300,
+      "notes": "Purpose: Latest SEC Form 4 insider transactions (buys/sells by executives, directors, 10% owners). Optional: ticker_symbol, owner_name, role filters (is_director/officer/ten_percent_owner), transaction_codes (P=Purchase, S=Sale), value/amount/price ranges, marketcap filters, sector/industry, earnings proximity. Output: Aggregated transactions with insider name, title, shares, value, transaction type, filing date. By default groups same-day same-person trades. Use for tracking smart money, identifying insider sentiment, and screening for cluster buying/selling patterns."
+    },
+    {
+      "dataset": "market-insider-buy-sells",
+      "class": "insider",
+      "discoverable": true,
+      "url": "/api/market/insider-buy-sells",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {
+        "limit": "integer?"
+      },
+      "param_constraints": {
+        "limit": {"min": 1}
+      },
+      "rate_limit": {"rps": 10, "burst": 30},
+      "cache_ttl": 300,
+      "notes": "Purpose: Market-wide aggregated insider buying vs selling activity. Optional: limit (min 1, returns all if not specified). Output: Time series of total buy/sell transaction counts and notional values across all insider filings. Use for gauging overall market insider sentiment, identifying periods of heavy insider buying/selling, and correlating aggregate insider activity with market conditions."
+    },
+    {
+      "dataset": "institution-holdings",
+      "class": "institutional",
+      "discoverable": true,
+      "url": "/api/institution/{name}/holdings",
+      "method": "GET",
+      "identifier_param": "name",
+      "params_schema": {
+        "name": "string",
+        "date": "date?",
+        "start_date": "date?",
+        "end_date": "date?",
+        "limit": "integer?",
+        "page": "integer?",
+        "order": "string?",
+        "order_direction": "enum[order]?",
+        "security_types": "array[string]?"
+      },
+      "param_defaults": {
+        "limit": 50,
+        "order_direction": "desc"
+      },
+      "param_constraints": {
+        "limit": {"min": 1, "max": 500}
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 3600,
+      "notes": "Purpose: 13F holdings for a specific institution. Required: name (institution name or CIK). Optional: date, start/end_date range, limit (1-500), page, order (date/ticker/units/value/etc), order_direction, security_types filter. Output: Holdings with ticker, units, value, units_change, avg_price, first_buy date, put/call indicator. Use for tracking hedge fund/mutual fund positions, analyzing institutional conviction, identifying new positions or exits, and following smart money allocation."
+    },
+    {
+      "dataset": "institution-sectors",
+      "class": "institutional",
+      "discoverable": true,
+      "url": "/api/institution/{name}/sectors",
+      "method": "GET",
+      "identifier_param": "name",
+      "params_schema": {
+        "name": "string",
+        "date": "date?",
+        "limit": "integer?",
+        "page": "integer?"
+      },
+      "param_defaults": {
+        "limit": 50
+      },
+      "param_constraints": {
+        "limit": {"min": 1, "max": 500}
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 3600,
+      "notes": "Purpose: Sector allocation breakdown for an institution's 13F holdings. Required: name (institution name or CIK). Optional: date, limit (1-500), page. Output: Per-sector data with total value, position counts, and position changes (increased/decreased/closed). Sectors include Technology, Healthcare, Financials, etc. Use for understanding institutional sector tilts, tracking rotation between sectors, and comparing allocations across reporting periods."
+    },
+    {
+      "dataset": "institution-ownership",
+      "class": "institutional",
+      "discoverable": true,
+      "url": "/api/institution/{ticker}/ownership",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "date": "date?",
+        "start_date": "date?",
+        "end_date": "date?",
+        "limit": "integer?",
+        "page": "integer?",
+        "order": "string?",
+        "order_direction": "enum[order]?",
+        "tags[]": "array[string]?"
+      },
+      "param_defaults": {
+        "limit": 50,
+        "order_direction": "desc"
+      },
+      "param_constraints": {
+        "limit": {"min": 1, "max": 500}
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 3600,
+      "notes": "Purpose: Which institutions own a specific stock. Required: ticker (can be comma-separated). Optional: date, start/end_date, limit (1-500), page, order (name/units/value/perc_outstanding/activity/etc), order_direction, tags filter (e.g. activist). Output: List of institutional owners with units held, value, % of outstanding shares, units change, first buy date, avg price. Use for identifying major shareholders, tracking institutional accumulation/distribution, finding activist positions, and gauging institutional conviction."
+    },
+    {
+      "dataset": "institutions-list",
+      "class": "institutional",
+      "discoverable": true,
+      "url": "/api/institutions",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {
+        "name": "string?",
+        "limit": "integer?",
+        "page": "integer?",
+        "order": "string?",
+        "order_direction": "enum[order]?",
+        "tags[]": "array[string]?",
+        "min_share_value": "string?",
+        "max_share_value": "string?",
+        "min_total_value": "string?",
+        "max_total_value": "string?"
+      },
+      "param_defaults": {
+        "limit": 50,
+        "order_direction": "desc"
+      },
+      "param_constraints": {
+        "limit": {"min": 1, "max": 500}
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 3600,
+      "notes": "Purpose: Browse and search institutional investors (13F filers). Optional: name search, limit (1-500), page, order (name/total_value/share_value/call_value/put_value/buy_value/sell_value/etc), order_direction, tags (activist, etc), min/max value filters. Output: List of institutions with AUM breakdown by security type (shares, calls, puts, warrants, etc.), total holdings count, and activity metrics. Use for discovering hedge funds, finding largest institutional players, filtering by investment style (activist, etc), and ranking by AUM."
+    }
+  ]
+}
+

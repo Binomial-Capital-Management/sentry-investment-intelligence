@@ -1,0 +1,3 @@
+# Custom modules directory
+# This folder is reserved for custom Terraform modules if needed later.
+# For now, we use community modules from terraform-aws-modules.

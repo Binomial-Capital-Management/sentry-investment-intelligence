@@ -1,0 +1,87 @@
+{
+    "taskDefinitionArn": "arn:aws:ecs:us-east-1:<AWS_ACCOUNT_ID>:task-definition/binomial-sentry-backend:3",
+    "containerDefinitions": [
+        {
+            "name": "binomial-sentry-backend",
+            "image": "<AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/binomial-sentry-backend@sha256:89938c6f8b5d202d21a076165739930f0a34dba42ddcf4dd3630ac09c127352f",
+            "cpu": 0,
+            "portMappings": [
+                {
+                    "containerPort": 8002,
+                    "hostPort": 8002,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "environment": [],
+            "environmentFiles": [
+                {
+                    "value": "arn:aws:s3:::binomial-sentry-frontend-bcm001/ecs-production.env",
+                    "type": "s3"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/binomial-sentry-backend",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "systemControls": []
+        }
+    ],
+    "family": "binomial-sentry-backend",
+    "taskRoleArn": "arn:aws:iam::<AWS_ACCOUNT_ID>:role/ecsTaskExecutionRole",
+    "executionRoleArn": "arn:aws:iam::<AWS_ACCOUNT_ID>:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "revision": 3,
+    "volumes": [],
+    "status": "ACTIVE",
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+        },
+        {
+            "name": "ecs.capability.execution-role-awslogs"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.ecr-auth"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "ecs.capability.env-files.s3"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.21"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.task-iam-role"
+        },
+        {
+            "name": "ecs.capability.execution-role-ecr-pull"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+        },
+        {
+            "name": "ecs.capability.task-eni"
+        }
+    ],
+    "placementConstraints": [],
+    "compatibilities": [
+        "EC2",
+        "FARGATE"
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "8192",
+    "memory": "16384",
+    "registeredAt": "2025-09-22T10:05:52.083000+03:00",
+    "registeredBy": "arn:aws:iam::<AWS_ACCOUNT_ID>:user/<DEPLOY_USER>"
+}

@@ -1,0 +1,342 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2025-12-01",
+  "source": "Unusual Whales API - Market Data",
+  "base_url": "https://api.unusualwhales.com",
+  "notes": "Market-wide data including earnings, economic indicators, and sector/market analytics from Unusual Whales",
+  "enums": {
+    "order": ["desc", "asc"],
+    "sector": ["Basic Materials", "Communication Services", "Consumer Cyclical", "Consumer Defensive", "Energy", "Financial Services", "Healthcare", "Industrials", "Real Estate", "Technology", "Utilities"]
+  },
+  "datasets": [
+    {
+      "dataset": "earnings-historical",
+      "class": "earnings",
+      "discoverable": true,
+      "url": "/api/earnings/{ticker}",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string"
+      },
+      "rate_limit": {"rps": 10, "burst": 30},
+      "cache_ttl": 3600,
+      "notes": "Purpose: Historical earnings data for a specific ticker. Required: ticker. Output: Past earnings reports with EPS actual vs estimate, revenue actual vs estimate, report dates, and beat/miss indicators. Use for analyzing earnings history, tracking estimate accuracy, backtesting earnings-based strategies, and understanding historical volatility around announcements."
+    },
+    {
+      "dataset": "market-correlations",
+      "class": "market_analytics",
+      "discoverable": true,
+      "url": "/api/market/correlations",
+      "method": "GET",
+      "identifier_param": "tickers",
+      "params_schema": {
+        "tickers": "string",
+        "interval": "string?",
+        "start_date": "date?",
+        "end_date": "date?"
+      },
+      "param_defaults": {
+        "interval": "1Y"
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 300,
+      "notes": "Purpose: Correlation matrix between multiple tickers. Required: tickers (comma-separated). Optional: interval (1D/1W/1M/1Y/YTD, default 1Y) OR start_date/end_date range (interval takes priority if both provided). Output: Pairwise correlation coefficients between all tickers. Use for portfolio diversification analysis, identifying correlated pairs for pairs trading, risk management, and understanding sector/asset relationships."
+    },
+    {
+      "dataset": "market-sector-etfs",
+      "class": "market_analytics",
+      "discoverable": true,
+      "url": "/api/market/sector-etfs",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {},
+      "rate_limit": {"rps": 10, "burst": 30},
+      "cache_ttl": 60,
+      "notes": "Purpose: Current trading day statistics for SPDR sector ETFs. No parameters required. Output: Performance metrics for sector ETFs (XLK, XLF, XLE, XLV, etc.) including price, change, volume, and intraday stats. Use for quick sector rotation analysis, market breadth assessment, identifying leading/lagging sectors, and building sector heatmaps."
+    },
+    {
+      "dataset": "market-spike",
+      "class": "market_analytics",
+      "discoverable": true,
+      "url": "/api/market/spike",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {
+        "date": "date?"
+      },
+      "rate_limit": {"rps": 10, "burst": 30},
+      "cache_ttl": 60,
+      "notes": "Purpose: Unusual Whales proprietary SPIKE indicator values. Optional: date (defaults to last market day). Output: Time series of SPIKE values with timestamps throughout the trading day. Note: This is a UW-specific indicator, not the traditional VIX spike definition. Use for monitoring UW's proprietary market stress/volatility measure and identifying intraday regime changes."
+    },
+    {
+      "dataset": "market-top-net-impact",
+      "class": "market_analytics",
+      "discoverable": true,
+      "url": "/api/market/top-net-impact",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {
+        "date": "date?",
+        "limit": "integer?",
+        "issue_types[]": "array[string]?"
+      },
+      "param_defaults": {
+        "limit": 20
+      },
+      "param_constraints": {
+        "limit": {"min": 1, "max": 100}
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 60,
+      "notes": "Purpose: Top tickers ranked by net premium flow (bullish and bearish). Optional: date, limit (1-100, default 20), issue_types filter (Common Stock, ETF, Index, ADR). Output: Split list - half most bullish (highest net premium) and half most bearish (lowest net premium) tickers. Use for identifying where smart money is flowing, finding momentum names, and screening for high-conviction directional plays across the market."
+    },
+    {
+      "dataset": "screener-analysts",
+      "class": "market_analytics",
+      "discoverable": true,
+      "url": "/api/screener/analysts",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string?",
+        "action": "string?",
+        "recommendation": "string?",
+        "limit": "integer?"
+      },
+      "param_defaults": {
+        "limit": 50
+      },
+      "param_constraints": {
+        "limit": {"min": 1, "max": 500}
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 300,
+      "notes": "Purpose: Latest analyst ratings and price target changes. Optional: ticker, action (initiated/reiterated/downgraded/upgraded/maintained), recommendation (buy/hold/sell), limit (1-500). Output: Analyst ratings with firm name, action type, recommendation, price target, and date. Use for tracking Wall Street sentiment, identifying upgrade/downgrade catalysts, screening for consensus changes, and monitoring price target revisions."
+    },
+    {
+      "dataset": "screener-stocks",
+      "class": "screener",
+      "discoverable": true,
+      "url": "/api/screener/stocks",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {
+        "ticker": "string?",
+        "date": "date?",
+        "sectors[]": "array[string]?",
+        "issue_types[]": "array[string]?",
+        "is_s_p_500": "boolean?",
+        "has_dividends": "boolean?",
+        "order": "string?",
+        "order_direction": "enum[order]?",
+        "min_underlying_price": "string?",
+        "max_underlying_price": "string?",
+        "min_marketcap": "string?",
+        "max_marketcap": "string?",
+        "min_change": "string?",
+        "max_change": "string?",
+        "min_volume": "integer?",
+        "max_volume": "integer?",
+        "min_premium": "string?",
+        "max_premium": "string?",
+        "min_net_premium": "string?",
+        "max_net_premium": "string?",
+        "min_call_volume": "integer?",
+        "max_call_volume": "integer?",
+        "min_put_volume": "integer?",
+        "max_put_volume": "integer?",
+        "min_call_premium": "string?",
+        "max_call_premium": "string?",
+        "min_put_premium": "string?",
+        "max_put_premium": "string?",
+        "min_net_call_premium": "string?",
+        "max_net_call_premium": "string?",
+        "min_net_put_premium": "string?",
+        "max_net_put_premium": "string?",
+        "min_oi": "integer?",
+        "max_oi": "integer?",
+        "min_oi_vs_vol": "string?",
+        "max_oi_vs_vol": "string?",
+        "min_put_call_ratio": "string?",
+        "max_put_call_ratio": "string?",
+        "min_iv_rank": "string?",
+        "max_iv_rank": "string?",
+        "min_volatility": "string?",
+        "max_volatility": "string?",
+        "min_implied_move": "string?",
+        "max_implied_move": "string?",
+        "min_implied_move_perc": "string?",
+        "max_implied_move_perc": "string?",
+        "min_call_oi_change_perc": "string?",
+        "max_call_oi_change_perc": "string?",
+        "min_put_oi_change_perc": "string?",
+        "max_put_oi_change_perc": "string?",
+        "min_total_oi_change_perc": "string?",
+        "max_total_oi_change_perc": "string?",
+        "min_perc_3_day_call": "string?",
+        "max_perc_3_day_call": "string?",
+        "min_perc_3_day_put": "string?",
+        "max_perc_3_day_put": "string?",
+        "min_perc_3_day_total": "string?",
+        "max_perc_3_day_total": "string?",
+        "min_perc_30_day_call": "string?",
+        "max_perc_30_day_call": "string?",
+        "min_perc_30_day_put": "string?",
+        "max_perc_30_day_put": "string?",
+        "min_perc_30_day_total": "string?",
+        "max_perc_30_day_total": "string?",
+        "min_stock_volume_vs_avg30_volume": "string?",
+        "max_avg30_volume": "string?"
+      },
+      "param_defaults": {
+        "order_direction": "desc"
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 60,
+      "notes": "Purpose: Comprehensive stock screener with extensive options flow filters. Optional: ticker, date, sectors, issue_types, S&P 500/dividend filters, price/marketcap ranges, options volume/premium/OI filters, put-call ratio, IV rank, implied move, OI change %, volume vs historical averages (3-day/30-day), and 50+ sort options. Output: Stocks matching criteria with full options flow metrics. Use for finding unusual activity, screening for specific options setups, identifying stocks with elevated flow, and building custom watchlists based on options data."
+    },
+    {
+      "dataset": "seasonality-market",
+      "class": "market_analytics",
+      "discoverable": true,
+      "url": "/api/seasonality/market",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {},
+      "rate_limit": {"rps": 10, "burst": 30},
+      "cache_ttl": 86400,
+      "notes": "Purpose: Historical average monthly returns for major market and sector ETFs. No parameters required. Output: Average return by month for SPY, QQQ, IWM, and sector ETFs (XLE, XLC, XLK, XLV, XLP, XLY, XLRE, XLF, XLI, XLB). Use for seasonal trading strategies, identifying historically strong/weak months, sector rotation timing, and calendar-based portfolio allocation."
+    },
+    {
+      "dataset": "seasonality-month-performers",
+      "class": "market_analytics",
+      "discoverable": true,
+      "url": "/api/seasonality/{month}/performers",
+      "method": "GET",
+      "identifier_param": "month",
+      "params_schema": {
+        "month": "string",
+        "limit": "integer?",
+        "min_years": "integer?",
+        "min_oi": "integer?",
+        "order": "string?",
+        "order_direction": "enum[order]?",
+        "s_p_500_nasdaq_only": "boolean?",
+        "ticker_for_sector": "string?"
+      },
+      "param_defaults": {
+        "limit": 50,
+        "min_years": 10,
+        "order_direction": "desc"
+      },
+      "param_constraints": {
+        "limit": {"min": 1},
+        "min_years": {"min": 1},
+        "min_oi": {"min": 0}
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 86400,
+      "notes": "Purpose: Top performing stocks for a specific calendar month historically. Required: month (1-12). Optional: limit, min_years of data (default 10), min_oi, order (positive_months_perc/median_change/avg_change/etc), order_direction, s_p_500_nasdaq_only, ticker_for_sector (filter to same sector). Output: Tickers ranked by historical performance in that month with positive close %, median/avg/max/min change. Default sort: positive_months_perc desc, then median_change desc, then marketcap desc. Use for seasonal stock picking, finding historically strong performers, and calendar-based trading strategies."
+    },
+    {
+      "dataset": "seasonality-ticker-monthly",
+      "class": "market_analytics",
+      "discoverable": true,
+      "url": "/api/seasonality/{ticker}/monthly",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string"
+      },
+      "rate_limit": {"rps": 10, "burst": 30},
+      "cache_ttl": 86400,
+      "notes": "Purpose: Average historical return by calendar month for a specific ticker. Required: ticker. Output: Average return for each month (Jan-Dec) based on historical data. Use for understanding a stock's seasonal patterns, timing entries/exits around historically strong/weak months, and comparing seasonality across different stocks."
+    },
+    {
+      "dataset": "seasonality-ticker-year-month",
+      "class": "market_analytics",
+      "discoverable": true,
+      "url": "/api/seasonality/{ticker}/year-month",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string"
+      },
+      "rate_limit": {"rps": 10, "burst": 30},
+      "cache_ttl": 86400,
+      "notes": "Purpose: Detailed price change breakdown by month and year for a ticker. Required: ticker. Output: Relative price change for each month across multiple years (matrix of year x month returns). Use for visualizing historical seasonality patterns, identifying consistent vs variable months, backtesting seasonal strategies, and detecting multi-year trends in monthly performance."
+    },
+    {
+      "dataset": "shorts-data",
+      "class": "short_interest",
+      "discoverable": true,
+      "url": "/api/shorts/{ticker}/data",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string"
+      },
+      "rate_limit": {"rps": 10, "burst": 30},
+      "cache_ttl": 300,
+      "notes": "Purpose: Current short selling data for a ticker. Required: ticker. Output: Rebate rate (cost to borrow), fee rate, short shares available, timestamp. Use for gauging short interest difficulty (hard-to-borrow stocks have low availability/high fees), identifying potential short squeeze candidates, understanding short seller conviction, and monitoring borrow availability changes."
+    },
+    {
+      "dataset": "shorts-ftds",
+      "class": "short_interest",
+      "discoverable": true,
+      "url": "/api/shorts/{ticker}/ftds",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string"
+      },
+      "rate_limit": {"rps": 10, "burst": 30},
+      "cache_ttl": 3600,
+      "notes": "Purpose: Failures to Deliver (FTD) data for a ticker. Required: ticker. Output: Daily FTD counts over time showing shares that failed to be delivered on settlement. Use for identifying potential naked shorting, detecting settlement issues, finding stocks with persistent delivery failures (squeeze indicators), and monitoring regulatory risk signals."
+    },
+    {
+      "dataset": "shorts-interest-float",
+      "class": "short_interest",
+      "discoverable": true,
+      "url": "/api/shorts/{ticker}/interest-float",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string"
+      },
+      "rate_limit": {"rps": 10, "burst": 30},
+      "cache_ttl": 3600,
+      "notes": "Purpose: Short interest as percentage of float for a ticker. Required: ticker. Output: Short interest %, float size, shares shorted, days to cover. Use for identifying heavily shorted stocks, calculating squeeze potential, comparing short interest across stocks, and monitoring changes in short positioning relative to available supply."
+    },
+    {
+      "dataset": "shorts-volume-ratio",
+      "class": "short_interest",
+      "discoverable": true,
+      "url": "/api/shorts/{ticker}/volume-and-ratio",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string"
+      },
+      "rate_limit": {"rps": 10, "burst": 30},
+      "cache_ttl": 300,
+      "notes": "Purpose: Daily short volume and short ratio for a ticker. Required: ticker. Output: Short volume, total volume, short ratio (short volume / total volume) over time. Use for tracking daily short selling activity, identifying spikes in short pressure, comparing short activity to total volume, and detecting changes in short seller aggressiveness."
+    },
+    {
+      "dataset": "shorts-volume-by-exchange",
+      "class": "short_interest",
+      "discoverable": true,
+      "url": "/api/shorts/{ticker}/volumes-by-exchange",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string"
+      },
+      "rate_limit": {"rps": 10, "burst": 30},
+      "cache_ttl": 300,
+      "notes": "Purpose: Short volume breakdown by exchange for a ticker. Required: ticker. Output: Short volume per exchange (NYSE, NASDAQ, etc.) over time. Use for identifying which venues have highest short activity, detecting exchange-specific short patterns, understanding market structure of short selling, and analyzing venue fragmentation in short trades."
+    }
+  ]
+}
+

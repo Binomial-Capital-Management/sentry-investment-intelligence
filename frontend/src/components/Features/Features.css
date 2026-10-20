@@ -1,0 +1,998 @@
+/* Features Page Styles */
+.features-page {
+  min-height: 100vh;
+  font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+}
+
+/* Hero Section */
+.hero-section {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  margin-top: -96px;
+}
+
+/* Background */
+.hero-background {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.features-page .hero-background::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('../../assets/features-background.png');
+  background-size: cover;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  mix-blend-mode: darken;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+/* Sticky Navigation */
+.hero-nav {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+  padding-top: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 32px;
+  backdrop-filter: blur(30px);
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 16px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  width: 90vw;
+  max-width: 1280px;
+}
+
+.nav-left {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+
+.nav-link {
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 400;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover,
+.nav-link-active {
+  color: white;
+  font-weight: 500;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.nav-auth {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.btn-login {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-login:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: white;
+}
+
+.btn-register {
+  background: rgba(255, 255, 255, 0.85);
+  color: #1a1a1a;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-register:hover {
+  background: white;
+  transform: translateY(-0.5px);
+}
+
+/* Hero Wrapper */
+.hero-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.hero-container {
+  display: flex;
+  flex-direction: column;
+  gap: 86px;
+  align-items: flex-start;
+  justify-content: end;
+  padding: 25px 50px 70px 50px;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.hero-content {
+  display: flex;
+  flex-direction: column;
+  gap: 78px;
+  align-items: flex-start;
+  justify-content: end;
+  position: relative;
+  flex-shrink: 0;
+  width: 100%;
+  aspect-ratio: 1180/236;
+}
+
+.hero-main {
+  position: relative;
+  flex-shrink: 0;
+  color: #f2f2f2;
+  font-size: 120px;
+  font-family: 'Geist', sans-serif;
+  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: -3.6px;
+  white-space: pre;
+}
+
+.hero-title {
+  display: block;
+  line-height: 0.95;
+  white-space: pre;
+  margin: 0;
+}
+
+.hero-bottom {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  position: relative;
+  flex-shrink: 0;
+  color: #f2f2f2;
+  width: 100%;
+  line-height: 0;
+}
+
+.hero-subtitle-container {
+  position: relative;
+  flex-shrink: 0;
+  font-family: 'Geist', sans-serif;
+  font-weight: 500;
+  font-size: 32px;
+  letter-spacing: -1.6px;
+  width: 623px;
+}
+
+.hero-subtitle {
+  display: block;
+  line-height: 1.09;
+  margin: 0;
+}
+
+.hero-description-container {
+  position: relative;
+  flex-shrink: 0;
+  font-family: 'Geist', sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  letter-spacing: -0.36px;
+  width: 370px;
+}
+
+.hero-description {
+  display: block;
+  line-height: 1.35;
+  margin: 0;
+}
+
+/* Main Content */
+.features-main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0px;
+  width: 100%;
+  flex: none;
+  order: 1;
+  align-self: stretch;
+  flex-grow: 0;
+}
+
+/* Core Features Section */
+.core-features-section {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  padding: 120px 0;
+  background: #ffffff;
+}
+
+.core-features-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 90vw;
+  max-width: 1280px;
+  padding: 0px 16px;
+}
+
+.features-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 80px;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.core-features-title {
+  font-size: 64px;
+  font-weight: 700;
+  color: #000000;
+  font-family: 'Geist', sans-serif;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0 0 24px 0;
+  text-align: center;
+}
+
+.features-subtitle {
+  font-size: 20px;
+  line-height: 1.6;
+  color: #666666;
+  font-family: 'Geist', sans-serif;
+  margin: 0;
+  font-weight: 400;
+  text-align: center;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.feature-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #0051cc;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.2s ease;
+}
+
+.feature-card:hover::before {
+  transform: scaleX(1);
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 81, 204, 0.1);
+}
+
+.feature-card:nth-child(1) {
+  background: #ffffff;
+}
+
+.feature-card:nth-child(2) {
+  background: #ffffff;
+  border-color: rgba(0, 81, 204, 0.08);
+}
+
+.feature-card:nth-child(2) .feature-title,
+.feature-card:nth-child(2) .feature-description {
+  color: inherit;
+}
+
+.feature-card:nth-child(2) .feature-icon {
+  background: rgba(0, 81, 204, 0.08);
+  color: #0051cc;
+  border-color: rgba(0, 81, 204, 0.1);
+}
+
+.feature-card:nth-child(3) {
+  background: #ffffff;
+  border-color: rgba(0, 81, 204, 0.08);
+}
+
+.feature-card:nth-child(4) {
+  background: #ffffff;
+  border-color: rgba(0, 81, 204, 0.08);
+}
+
+.feature-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin: 32px 32px 24px 32px;
+  color: #0051cc;
+  background: rgba(0, 81, 204, 0.08);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(0, 81, 204, 0.1);
+}
+
+.feature-card:nth-child(3) .feature-icon {
+  background: rgba(0, 81, 204, 0.06);
+  color: #0051cc;
+  border-color: rgba(0, 81, 204, 0.08);
+}
+
+.feature-card:nth-child(4) .feature-icon {
+  background: rgba(0, 81, 204, 0.04);
+  color: #0051cc;
+  border-color: rgba(0, 81, 204, 0.06);
+}
+
+.feature-card:hover .feature-icon {
+  transform: scale(1.05);
+}
+
+.feature-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 32px 40px 32px;
+  flex-grow: 1;
+}
+
+.feature-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #000000;
+  font-family: 'Geist', sans-serif;
+  margin: 0;
+  line-height: 1.3;
+  letter-spacing: -0.005em;
+}
+
+.feature-description {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #6b7280;
+  font-family: 'Geist', sans-serif;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* Platform Benefits Section */
+.platform-benefits-section {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  padding: 120px 0;
+  background: #f8f9fa;
+}
+
+.platform-benefits-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 90vw;
+  max-width: 1280px;
+  padding: 0px 16px;
+}
+
+.benefits-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 80px;
+  max-width: 800px;
+}
+
+.benefits-title {
+  font-size: 56px;
+  font-weight: 700;
+  color: #000000;
+  font-family: 'Geist', sans-serif;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0 0 24px 0;
+}
+
+.benefits-subtitle {
+  font-size: 20px;
+  line-height: 1.6;
+  color: #666666;
+  font-family: 'Geist', sans-serif;
+  margin: 0;
+  font-weight: 400;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  width: 100%;
+}
+
+.benefit-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 32px 28px;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.benefit-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: 80%;
+  height: 4px;
+  background: linear-gradient(90deg, #0051cc, #0066ff);
+  border-radius: 2px;
+  transition: transform 0.3s ease;
+}
+
+.benefit-card:hover::after {
+  transform: translateX(-50%) scaleX(1);
+}
+
+.benefit-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 81, 204, 0.2);
+}
+
+.benefit-header {
+  margin-bottom: 24px;
+}
+
+.benefit-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #374151;
+  font-family: 'Geist', sans-serif;
+  margin: 0;
+}
+
+.benefit-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.benefit-value {
+  font-size: 42px;
+  font-weight: 700;
+  color: #000000;
+  font-family: 'Geist', sans-serif;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.benefit-description {
+  font-size: 14px;
+  color: #6b7280;
+  font-family: 'Geist', sans-serif;
+  margin: 0;
+  font-weight: 400;
+}
+
+.benefit-trend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 14px;
+  color: #10b981;
+  margin-top: 12px;
+  font-family: 'Geist', sans-serif;
+  font-weight: 500;
+}
+
+/* Intelligence Suite Section */
+.intelligence-suite-section {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  padding: 120px 0;
+  background: #ffffff;
+}
+
+.intelligence-suite-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 90vw;
+  max-width: 1280px;
+  padding: 0px 16px;
+  gap: 80px;
+}
+
+.suite-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 800px;
+}
+
+.suite-title {
+  font-size: 56px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #000000 0%, #0051cc 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #000000;
+  font-family: 'Geist', sans-serif;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0 0 32px 0;
+}
+
+.suite-description p {
+  font-size: 20px;
+  line-height: 1.6;
+  color: #666666;
+  font-family: 'Geist', sans-serif;
+  margin: 0;
+  font-weight: 400;
+}
+
+.capabilities-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  width: 100%;
+}
+
+.capability-card {
+  display: flex;
+  align-items: flex-start;
+  padding: 32px 28px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.capability-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #0051cc, #0066ff, #00d4aa);
+  border-radius: 16px 16px 0 0;
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.capability-card:hover::before {
+  transform: scaleX(1);
+}
+
+.capability-card:hover {
+  background: linear-gradient(135deg, #ffffff 0%, rgba(0, 81, 204, 0.02) 100%);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 32px rgba(0, 81, 204, 0.12);
+  border-color: rgba(0, 81, 204, 0.2);
+}
+
+.capability-card:nth-child(4n+1)::before {
+  background: linear-gradient(90deg, #0051cc, #0066ff);
+}
+
+.capability-card:nth-child(4n+2)::before {
+  background: linear-gradient(90deg, #00d4aa, #00b4a6);
+}
+
+.capability-card:nth-child(4n+3)::before {
+  background: linear-gradient(90deg, #ff6b35, #f7931e);
+}
+
+.capability-card:nth-child(4n+4)::before {
+  background: linear-gradient(90deg, #8b5cf6, #a855f7);
+}
+
+.capability-card:nth-child(4n+1):hover {
+  background: linear-gradient(135deg, #ffffff 0%, rgba(0, 81, 204, 0.03) 100%);
+  border-color: rgba(0, 81, 204, 0.2);
+}
+
+.capability-card:nth-child(4n+2):hover {
+  background: linear-gradient(135deg, #ffffff 0%, rgba(0, 212, 170, 0.03) 100%);
+  border-color: rgba(0, 212, 170, 0.2);
+}
+
+.capability-card:nth-child(4n+3):hover {
+  background: linear-gradient(135deg, #ffffff 0%, rgba(255, 107, 53, 0.03) 100%);
+  border-color: rgba(255, 107, 53, 0.2);
+}
+
+.capability-card:nth-child(4n+4):hover {
+  background: linear-gradient(135deg, #ffffff 0%, rgba(139, 92, 246, 0.03) 100%);
+  border-color: rgba(139, 92, 246, 0.2);
+}
+
+.capability-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.capability-content h3 {
+  font-size: 22px;
+  font-weight: 600;
+  color: #000000;
+  font-family: 'Geist', sans-serif;
+  margin: 0;
+}
+
+.capability-content p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #666666;
+  font-family: 'Geist', sans-serif;
+  margin: 0;
+  font-weight: 400;
+}
+
+.coming-soon {
+  display: block;
+  color: #999999;
+  font-size: 13px;
+  font-weight: 400;
+  font-family: 'Geist', sans-serif;
+  margin-top: 8px;
+  font-style: italic;
+}
+
+/* Platform Reliability Section */
+.platform-reliability-section {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  padding: 120px 0;
+  background: #f1f5f9;
+}
+
+.platform-reliability-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 90vw;
+  max-width: 1280px;
+  padding: 0px 16px;
+}
+
+.reliability-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 80px;
+  max-width: 800px;
+}
+
+.reliability-title {
+  font-size: 56px;
+  font-weight: 700;
+  color: #000000;
+  font-family: 'Geist', sans-serif;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0 0 24px 0;
+}
+
+.reliability-subtitle {
+  font-size: 20px;
+  line-height: 1.6;
+  color: #666666;
+  font-family: 'Geist', sans-serif;
+  margin: 0;
+  font-weight: 400;
+}
+
+.reliability-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  width: 100%;
+  margin-bottom: 64px;
+}
+
+.metric-card {
+  background: #ffffff;
+  border: 2px solid #e2e8f0;
+  border-radius: 24px;
+  padding: 36px 28px;
+  text-align: center;
+  transition: all 0.4s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.metric-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 20px 40px rgba(0, 81, 204, 0.15);
+  border-color: #0051cc;
+}
+
+.metric-header {
+  margin-bottom: 24px;
+}
+
+.metric-header h3 {
+  font-size: 18px;
+  font-weight: 500;
+  color: #374151;
+  font-family: 'Geist', sans-serif;
+  margin: 0;
+}
+
+.metric-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.metric-value {
+  font-size: 48px;
+  font-weight: 700;
+  color: #000000;
+  font-family: 'Geist', sans-serif;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.metric-description {
+  font-size: 14px;
+  color: #6b7280;
+  font-family: 'Geist', sans-serif;
+  margin: 0;
+  font-weight: 400;
+}
+
+.metric-trend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 14px;
+  color: #10b981;
+  margin-top: 12px;
+  font-family: 'Geist', sans-serif;
+  font-weight: 500;
+}
+
+.reliability-cta {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.demo-button {
+  background: #0051cc;
+  color: #ffffff;
+  border: none;
+  padding: 16px 32px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: 'Geist', sans-serif;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(0, 81, 204, 0.2);
+}
+
+.demo-button:hover {
+  background: #003d99;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 81, 204, 0.25);
+}
+
+.demo-text {
+  transition: all 0.3s ease;
+}
+
+.demo-arrow {
+  font-size: 20px;
+  transition: all 0.3s ease;
+}
+
+.demo-button:hover .demo-arrow {
+  transform: translateX(4px);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .features-grid {
+    grid-template-columns: 1fr;
+    max-width: 600px;
+  }
+
+  .benefits-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .reliability-metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .capabilities-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .core-features-title,
+  .benefits-title,
+  .suite-title,
+  .reliability-title {
+    font-size: 48px;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-nav {
+    padding: 16px 20px;
+  }
+
+  .nav-left {
+    gap: 20px;
+  }
+
+  .nav-link {
+    font-size: 13px;
+  }
+
+  .hero-main {
+    margin-top: 80px;
+    padding: 0 20px;
+  }
+
+  .hero-title {
+    font-size: 60px;
+  }
+
+  .hero-bottom {
+    bottom: 60px;
+    padding: 0 20px;
+    gap: 25px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hero-subtitle {
+    font-size: 26px;
+  }
+
+  .hero-description {
+    font-size: 20px;
+  }
+
+  .benefits-grid,
+  .reliability-metrics,
+  .capabilities-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .core-features-title,
+  .benefits-title,
+  .suite-title,
+  .reliability-title {
+    font-size: 36px;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-left {
+    display: none;
+  }
+
+  .hero-main {
+    margin-top: 60px;
+  }
+
+  .hero-title {
+    font-size: 48px;
+  }
+
+  .hero-bottom {
+    bottom: 40px;
+    gap: 20px;
+  }
+
+  .hero-subtitle {
+    font-size: 22px;
+  }
+
+  .hero-description {
+    font-size: 18px;
+  }
+
+  .core-features-title,
+  .benefits-title,
+  .suite-title,
+  .reliability-title {
+    font-size: 28px;
+  }
+}

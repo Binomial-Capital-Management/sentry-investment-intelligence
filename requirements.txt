@@ -1,0 +1,118 @@
+# Core Web Framework
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+flask==3.0.3
+flask-cors==4.0.0
+gunicorn==23.0.0
+
+# OpenAI and AI Dependencies
+openai>=2.29.0  # Upgraded for streaming bug fixes and GPT-5.4 support
+openai-agents[litellm]==0.12.5  # Upgraded for ToolOutputTrimmer, compaction, stream cancellation
+anthropic==0.49.0  # For Claude web search functionality
+litellm>=1.80.8  # Upgraded by openai-agents 0.12.5 (was 1.80.8, now 1.82.4)
+xai-sdk
+langgraph==0.6.4
+langgraph-checkpoint-sqlite==2.0.11  # Locked from local
+langchain-core>=0.3.80,<1.0  # Required for ModelProfileRegistry (langchain-openai 0.3.38+)
+langchain-openai>=0.3.35,<0.4.0  # Supports openai 2.x
+mcp>=1.12.0  # Upgraded by openai-agents 0.12.5 (was 1.12.0, now 1.26.0)
+huggingface-hub>=1.1.5  # For FinBERT sentiment analysis (uses new router.huggingface.co endpoint)
+# litellm dependencies - locked to prevent resolver backtracking
+fastuuid==0.13.5
+dnspython==2.7.0
+tokenizers>=0.22.1
+
+# Authentication
+PyJWT==2.10.1
+cryptography==44.0.0
+# Webhook verification
+svix==1.44.0  # For Clerk webhook verification
+# Using manual HMAC verification as fallback (see api/routers/auth.py)
+
+# Database
+asyncpg==0.30.0
+aiosqlite==0.20.0
+sqlalchemy==2.0.36
+alembic==1.14.0  # Database migrations
+psycopg2-binary==2.9.10  # Sync PostgreSQL driver for Alembic migrations
+redis==5.2.1
+
+# Streaming & WebSockets
+aiokafka==0.12.0
+websockets==13.1
+
+# HTTP Client (required for FMP servers)
+aiohttp==3.11.11
+
+# Email Service
+aiosmtplib==3.0.2
+
+# AWS Services
+boto3==1.35.94
+botocore==1.35.94
+
+# Data Science & Analytics - Pinned for pmdarima binary compatibility
+pandas==2.2.3
+numpy==1.26.4  # pmdarima 2.0.4 requires numpy 1.x (binary incompatibility with 2.x)
+scipy==1.13.1
+statsmodels==0.14.2  # ARIMA, seasonal decomposition, time series analysis
+pmdarima==2.0.4  # Auto ARIMA parameter selection
+hmmlearn==0.3.3  # Hidden Markov Model for regime detection
+scikit-learn==1.5.2
+xgboost==2.1.3  # Feature importance analysis
+shap==0.46.0  # SHAP values for model interpretability
+yfinance==0.2.65
+fredapi==0.5.2
+ibflex==0.15  # Interactive Brokers Flex Query integration
+
+# Risk Calculations & Optimization
+cvxpy==1.7.1
+pykalman>=0.10.1  # Kalman filtering for time-varying hedge ratios
+
+# Configuration & Utilities
+pydantic>=2.12.3  # Required for openai-agents
+pydantic-settings==2.6.1
+email-validator==2.1.1
+python-dotenv==1.0.1
+simplejson==3.20.1
+httpx>=0.28.0  # Required for edgartools 5.x
+python-multipart==0.0.18
+apscheduler==3.10.4
+pytz==2025.2  # Timezone support for task scheduler
+google-auth==2.36.0
+google-auth-oauthlib==1.2.1
+google-api-python-client==2.154.0
+
+# Export & Document Generation
+python-docx==1.1.2
+# playwright==1.54.0   # ARCHIVED: Replaced by Gamma API (see pdf-archive/)
+Pillow==11.1.0
+aiofiles==24.1.0
+PyPDF2==3.0.1              # PDF text extraction
+PyMuPDF==1.24.2            # PDF to image conversion for GPT-5 vision
+pdf2image==1.17.0          # PDF rendering (poppler) for parallel-safe vision path
+openpyxl==3.1.2            # Excel file processing
+
+# Dynamic Charts
+plotly==5.24.1
+plotly-resampler==0.10.0    # Dynamic resampling for large datasets
+tsdownsample==0.1.3          # LTTB downsampling algorithm
+orjson==3.10.11              # Fast JSON serialization (5-10x speedup)
+kaleido==0.2.1               # Static image export for charts (optional)
+
+# Monitoring & Error Tracking
+sentry-sdk==2.19.2           # Error tracking and performance monitoring
+
+# SEC Filing Integration
+edgartools>=5.13.0           # SEC filing retrieval (pydantic 2 compatible)
+tiktoken==0.7.0              # OpenAI tokenizer for chunking
+voyageai==0.3.4              # Voyage AI embeddings for better financial performance
+beautifulsoup4==4.13.4       # HTML parsing for better chunk extraction
+lxml==5.4.0                  # Fast XML/HTML parser for BeautifulSoup
+sec2md==0.1.20               # SEC EDGAR to Markdown conversion for clean rendering
+weasyprint==62.3             # HTML to PDF conversion for SEC filings
+langdetect>=1.0.9
+arch==8.0.0  # For Phillips-Perron and GARCH models (pinned to venv version)
+
+# BinomialHash package (local editable install)
+-e ./binomialhash

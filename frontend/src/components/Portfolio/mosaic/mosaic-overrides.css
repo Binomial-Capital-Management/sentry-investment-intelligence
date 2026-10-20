@@ -1,0 +1,90 @@
+/* Override react-mosaic defaults to match Sentry design system */
+
+.portfolio-mosaic {
+  background: #f9fafb;
+}
+
+.portfolio-mosaic .mosaic-tile {
+  margin: 2px;
+}
+
+.portfolio-mosaic .mosaic-window {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+}
+
+.portfolio-mosaic .mosaic-window .mosaic-window-toolbar {
+  height: 32px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.portfolio-mosaic .mosaic-window .mosaic-window-body {
+  background: #ffffff;
+}
+
+.portfolio-mosaic .mosaic-window-body {
+  overflow: hidden;
+}
+
+/* Drag preview */
+.portfolio-mosaic .mosaic-preview {
+  border: 2px dashed #2563eb;
+  background: rgba(37, 99, 235, 0.05);
+  border-radius: 8px;
+}
+
+/* Split lines */
+.portfolio-mosaic .mosaic-split {
+  z-index: 5;
+}
+
+.portfolio-mosaic .mosaic-split.-row {
+  margin-left: -2px;
+  width: 5px;
+}
+
+.portfolio-mosaic .mosaic-split.-column {
+  margin-top: -2px;
+  height: 5px;
+}
+
+.portfolio-mosaic .mosaic-split:hover {
+  background: rgba(37, 99, 235, 0.15);
+}
+
+/* Zero state */
+.portfolio-mosaic .mosaic-zero-state {
+  background: #f9fafb;
+}
+
+/* Remove Blueprint default theme background */
+.portfolio-mosaic.mosaic-blueprint-theme {
+  background: #f9fafb;
+}
+
+/* Compact window toolbar */
+.portfolio-mosaic .mosaic-window .mosaic-window-controls {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.portfolio-mosaic .mosaic-default-control {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  color: #9ca3af;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.portfolio-mosaic .mosaic-default-control:hover {
+  background: #f3f4f6;
+  color: #6b7280;
+}

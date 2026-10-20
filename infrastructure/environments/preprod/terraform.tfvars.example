@@ -1,0 +1,54 @@
+# =============================================================================
+# Pre-Production Environment Variables
+# =============================================================================
+# Copy this file to terraform.tfvars and fill in the values.
+# NEVER commit terraform.tfvars to git (it's in .gitignore)
+# =============================================================================
+
+# General
+environment  = "preprod"
+aws_region   = "us-east-1"
+project_name = "binomial-sentry"
+
+# VPC & Networking (shared with production)
+vpc_id             = "<VPC_ID>"
+vpc_cidr           = "10.0.0.0/16"
+private_subnet_ids = ["<SUBNET_ID>", "<SUBNET_ID>"]
+public_subnet_ids  = ["<SUBNET_ID>", "<SUBNET_ID>"]
+availability_zones = ["us-east-1a", "us-east-1b"]
+
+# ECS (smaller than production)
+ecs_cluster_name      = "binomial-sentry-cluster-preprod"
+ecs_service_name      = "binomial-sentry-backend-service-preprod"
+ecs_cpu               = 2048  # 2 vCPU (vs 4 in prod)
+ecs_memory            = 4096  # 4 GB (vs 8 in prod)
+ecs_desired_count     = 1     # 1 task (vs 2 in prod)
+ecs_capacity_provider = "FARGATE_SPOT"  # 70% cheaper
+container_port        = 8002
+container_image_tag   = "preprod"
+
+# Database - Aurora Serverless v2 (SENSITIVE values from Secrets Manager)
+aurora_cluster_identifier = "binomial-sentry-cluster-preprod"
+aurora_min_capacity       = 0.5  # Scales down when idle
+aurora_max_capacity       = 2.0  # Caps compute
+# db_master_username      = "REDACTED"  # From Secrets Manager
+# db_master_password      = "REDACTED"  # From Secrets Manager
+
+# ALB & SSL
+alb_name        = "binomial-sentry-alb-preprod"
+certificate_arn = "arn:aws:acm:us-east-1:<AWS_ACCOUNT_ID>:certificate/cc21776d-9edf-4d7c-af07-7e1716af0579"  # Wildcard cert for *.binomialsentry.ai
+
+# Domain & DNS (shared zone, preprod subdomain)
+domain_name     = "api-preprod.binomialsentry.ai"
+route53_zone_id = "<ROUTE53_ZONE_ID>"
+
+# EFS (shared file system, separate access point)
+efs_file_system_id    = "<EFS_ID>"
+efs_security_group_id = "<SECURITY_GROUP_ID>"
+efs_access_point_path = "/preprod"
+
+# Logging (shorter retention)
+log_retention_days = 7  # (vs 30 in prod)
+
+# Frontend
+frontend_domain_name = "preprod.binomialsentry.ai"

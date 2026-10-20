@@ -1,0 +1,47 @@
+{
+  "label": "3_torus_options",
+  "row_count": 100000,
+  "surface_name": "torus",
+  "genus": 1,
+  "orientable": true,
+  "euler_characteristic": 0,
+  "classification_mode": "validated_2d_faces",
+  "surface_confidence": 0.9989,
+  "betti_0": 1,
+  "betti_1": 4795,
+  "vertex_count": 4798,
+  "edge_count": 9592,
+  "face_count": 4792,
+  "exported_faces": 4792,
+  "face_coverage": 0.9983,
+  "occupancy": 0.9996,
+  "boundary_edge_count": 16,
+  "boundary_loop_count": 2,
+  "face_euler_characteristic": -2,
+  "face_genus_estimate": 1.0,
+  "axes": [
+    {
+      "column": "expiry_date",
+      "type": "temporal",
+      "size": 60,
+      "wraps": true,
+      "wrap_orientation": 1,
+      "ordered": true
+    },
+    {
+      "column": "strike",
+      "type": "numeric_ordered",
+      "size": 80,
+      "wraps": true,
+      "wrap_orientation": 1,
+      "ordered": true
+    }
+  ],
+  "field_columns": [
+    "implied_vol",
+    "open_interest",
+    "volume"
+  ],
+  "primary_field": "implied_vol",
+  "build_ms": 463.2
+}

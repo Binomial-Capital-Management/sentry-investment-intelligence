@@ -1,0 +1,742 @@
+/**
+ * Claude Chat Theme - Design tokens scoped to the AI chat panel
+ * Shared with the Sentry Excel Add-in theme
+ */
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   FONT FACES
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('https://fonts.gstatic.com/s/jetbrainsmono/v18/tDbY2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKxjPVmUsaaDhw.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   DESIGN TOKENS — scoped to .claude-chat-panel
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.claude-chat-panel {
+  /* Font stacks */
+  --cc-font-ui: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --cc-font-response: Georgia, Cambria, 'Times New Roman', Times, serif;
+  --cc-font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Menlo, Consolas, 'Courier New', monospace;
+
+  /* Background colors (HSL values) */
+  --cc-bg-000: 0 0% 100%;           /* White */
+  --cc-bg-100: 30 2% 95%;            /* Main panel bg - warm neutral gray */
+  --cc-bg-200: 0 0% 94%;            /* Light gray */
+  --cc-bg-300: 210 10% 87%;         /* User message bubble */
+  --cc-bg-400: 0 0% 89%;            /* Darker gray */
+
+  /* Text colors */
+  --cc-text-000: 60 2.6% 7.6%;      /* Near black */
+  --cc-text-100: 60 2.6% 7.6%;      /* Near black */
+  --cc-text-200: 60 2.5% 23.3%;     /* Dark gray */
+  --cc-text-300: 60 2.5% 23.3%;     /* Dark gray */
+  --cc-text-400: 51 3.1% 43.7%;     /* Medium gray */
+  --cc-text-500: 51 3.1% 43.7%;     /* Medium gray */
+
+  /* Accent colors (blue) */
+  --cc-accent-brand: 217 91% 53%;
+  --cc-accent-main-000: 217 91% 53%;      /* Primary blue - #2563eb */
+  --cc-accent-main-100: 217 91% 53%;
+  --cc-accent-main-200: 217 91% 60%;      /* Hover blue - lighter */
+
+  /* Secondary accent */
+  --cc-accent-secondary-000: 210 73.7% 40.2%;
+  --cc-accent-secondary-100: 210 70.9% 51.6%;
+
+  /* Border colors */
+  --cc-border-100: 30 3.3% 11.8%;
+  --cc-border-200: 30 3.3% 11.8%;
+  --cc-border-300: 30 3.3% 11.8%;
+
+  /* Danger/error colors */
+  --cc-danger-000: 0 61.4% 22.4%;
+  --cc-danger-100: 0 58.6% 34.1%;
+  --cc-danger-200: 0 58.6% 34.1%;
+  --cc-danger-900: 0 50% 95%;
+
+  /* On-color (text on colored backgrounds) */
+  --cc-oncolor-100: 0 0% 100%;
+
+  /* Always colors (don't change with theme) */
+  --cc-always-white: 0 0% 100%;
+  --cc-always-black: 0 0% 0%;
+
+  /* Spacing base */
+  --cc-spacing: 0.25rem;
+
+  /* Border radius */
+  --cc-radius-sm: 0.25rem;
+  --cc-radius-md: 0.375rem;
+  --cc-radius-lg: 0.5rem;
+  --cc-radius-xl: 0.75rem;
+  --cc-radius-2xl: 1rem;
+  --cc-radius-3xl: 1.5rem;
+
+  /* Un-prefixed aliases for shared CSS classes ported from Excel add-in */
+  --font-ui: var(--cc-font-ui);
+  --font-claude-response: var(--cc-font-response);
+  --font-mono: var(--cc-font-mono);
+  --bg-000: var(--cc-bg-000);
+  --bg-100: var(--cc-bg-100);
+  --bg-200: var(--cc-bg-200);
+  --bg-300: var(--cc-bg-300);
+  --bg-400: var(--cc-bg-400);
+  --text-000: var(--cc-text-000);
+  --text-100: var(--cc-text-100);
+  --text-200: var(--cc-text-200);
+  --text-300: var(--cc-text-300);
+  --text-400: var(--cc-text-400);
+  --text-500: var(--cc-text-500);
+  --border-100: var(--cc-border-100);
+  --border-200: var(--cc-border-200);
+  --border-300: var(--cc-border-300);
+  --danger-100: var(--cc-danger-100);
+  --accent-main-000: var(--cc-accent-main-000);
+  --accent-main-100: var(--cc-accent-main-100);
+  --accent-brand: var(--cc-accent-brand);
+  --always-white: var(--cc-always-white);
+  --always-black: var(--cc-always-black);
+  --radius-sm: var(--cc-radius-sm);
+  --radius-md: var(--cc-radius-md);
+  --radius-lg: var(--cc-radius-lg);
+
+  /* Apply base font and rendering */
+  font-family: var(--cc-font-ui);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   SCOPED SCROLLBAR OVERRIDES
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.claude-chat-panel {
+  scrollbar-width: thin;
+  scrollbar-color: hsla(var(--cc-border-300) / 35%) transparent;
+}
+
+.claude-chat-panel *::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.claude-chat-panel *::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.claude-chat-panel *::-webkit-scrollbar-thumb {
+  background: hsla(var(--cc-border-300) / 35%);
+  border-radius: 4px;
+}
+
+.claude-chat-panel *::-webkit-scrollbar-thumb:hover {
+  background: hsla(var(--cc-border-300) / 50%);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   TYPOGRAPHY UTILITIES
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.cc-font-ui {
+  font-family: var(--cc-font-ui);
+}
+
+.cc-font-response {
+  font-family: var(--cc-font-response);
+}
+
+.cc-font-mono {
+  font-family: var(--cc-font-mono);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   BUTTON UTILITIES
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.claude-chat-panel .cc-btn-ghost:hover {
+  background-color: hsl(var(--cc-bg-300)) !important;
+  color: hsl(var(--cc-text-100)) !important;
+}
+
+.claude-chat-panel .cc-btn-ghost:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.claude-chat-panel .cc-btn-ghost:disabled {
+  pointer-events: none;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   THREAD MENU ITEM HOVER
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.claude-chat-panel .cc-thread-item:hover {
+  background-color: hsl(var(--cc-bg-200)) !important;
+}
+
+.claude-chat-panel .cc-thread-item:hover .cc-thread-actions {
+  opacity: 1 !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   KEYFRAME ANIMATIONS
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmerSlide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+@keyframes slideInPanel {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes shimmertext {
+  0% {
+    background-position: 100% 0;
+  }
+  65% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+}
+
+@keyframes pending-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+
+@keyframes pulse-scale {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.25);
+    opacity: 1;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   SHIMMER TOOL (loading state for tool calls)
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.claude-chat-panel .shimmer-tool {
+  position: relative;
+  overflow: hidden;
+  background-color: hsla(var(--cc-accent-main-000) / 4%);
+}
+
+.claude-chat-panel .shimmer-tool::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    hsla(var(--cc-accent-main-000) / 15%) 50%,
+    transparent 100%
+  );
+  animation: shimmerSlide 1.5s ease-in-out infinite;
+}
+
+/* Shimmer text animation (for loading indicators) */
+.claude-chat-panel .animate-shimmertext {
+  color: transparent;
+  background: linear-gradient(
+    to right,
+    hsl(var(--text-400)) 0%,
+    hsl(var(--text-400)) 30%,
+    hsl(var(--always-white) / 70%) 50%,
+    hsl(var(--text-400)) 80%,
+    hsl(var(--text-400)) 100%
+  );
+  background-size: 400% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  background-repeat: no-repeat;
+  animation: shimmertext 2.25s infinite;
+  font-family: var(--font-claude-response);
+  font-size: 0.875rem;
+}
+
+.claude-chat-panel .pulse-icon {
+  animation: pulse-scale 1.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .claude-chat-panel .pulse-icon {
+    animation: none;
+    opacity: 1;
+  }
+
+  .claude-chat-panel .animate-shimmertext {
+    animation: none;
+    color: hsl(var(--text-400));
+    background: none;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   TIMELINE (TOOL CALLS) — ported from Excel add-in
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.claude-chat-panel .tool-timeline {
+  border-radius: var(--radius-lg);
+  border: 0.5px solid hsl(var(--border-300) / 15%);
+  overflow: hidden;
+  margin: 0.5rem 0;
+  min-height: 2.625rem;
+  padding-left: 0.75rem;
+}
+
+.claude-chat-panel .timeline-item-wrapper {
+  flex-shrink: 0;
+}
+
+.claude-chat-panel .timeline-item {
+  display: flex;
+  flex-direction: row;
+  min-height: 1.5rem;
+  flex-shrink: 0;
+  gap: 0.625rem;
+}
+
+.claude-chat-panel .timeline-track {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 8px;
+}
+
+.claude-chat-panel .timeline-line-top,
+.claude-chat-panel .timeline-line-bottom {
+  flex-grow: 1;
+  width: 1px;
+  min-height: calc(0.75rem - 4px);
+  transition: all 0.2s ease;
+}
+
+.claude-chat-panel .timeline-line-top.visible,
+.claude-chat-panel .timeline-line-bottom.visible {
+  background-color: #D9D9D9;
+}
+
+.claude-chat-panel .timeline-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #D9D9D9;
+  flex-shrink: 0;
+}
+
+.claude-chat-panel .timeline-dot-pending {
+  animation: pending-pulse 1.6s ease-in-out infinite;
+}
+
+.claude-chat-panel .timeline-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.claude-chat-panel .timeline-header {
+  width: 100%;
+  padding: 0 0.75rem 0 0;
+  height: 2.625rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  color: hsl(var(--text-300));
+  background: transparent;
+  border: none;
+  font-family: var(--font-ui);
+}
+
+.claude-chat-panel .timeline-header:hover {
+  color: hsl(var(--text-000));
+}
+
+.claude-chat-panel .timeline-header:disabled {
+  cursor: default;
+}
+
+.claude-chat-panel .timeline-label-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.claude-chat-panel .timeline-label {
+  font-size: 0.75rem;
+  font-family: var(--font-ui);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.claude-chat-panel .timeline-label-error {
+  color: hsl(var(--danger-100));
+}
+
+.claude-chat-panel .timeline-error-text {
+  color: hsl(var(--danger-100));
+  font-size: 12px;
+  padding: 4px 0;
+}
+
+.claude-chat-panel .timeline-duration {
+  font-size: 0.65rem;
+  color: hsl(var(--text-400));
+  font-family: var(--font-ui);
+  flex-shrink: 0;
+}
+
+.claude-chat-panel .timeline-label-shimmer {
+  color: transparent !important;
+  -webkit-text-fill-color: transparent;
+  background: linear-gradient(
+    to right,
+    hsl(var(--text-300)) 0%,
+    hsl(var(--text-300)) 30%,
+    hsl(var(--always-white) / 70%) 50%,
+    hsl(var(--text-300)) 80%,
+    hsl(var(--text-300)) 100%
+  );
+  background-size: 400% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  background-repeat: no-repeat;
+  animation: shimmertext 2.25s ease infinite;
+}
+
+.claude-chat-panel .timeline-chevron {
+  color: hsl(var(--text-400));
+  flex-shrink: 0;
+  margin-left: 0.5rem;
+  transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.35, 1);
+}
+
+.claude-chat-panel .timeline-chevron.expanded {
+  transform: rotate(180deg);
+}
+
+.claude-chat-panel .timeline-expanded-wrapper {
+  overflow: hidden;
+  transition: height 0.2s cubic-bezier(0.2, 0.9, 0.35, 1),
+              opacity 0.15s ease;
+  pointer-events: none;
+}
+
+.claude-chat-panel .timeline-expanded-wrapper[style*="opacity: 1"] {
+  pointer-events: auto;
+}
+
+.claude-chat-panel .timeline-expanded {
+  padding: 1rem;
+  background-color: hsl(var(--bg-000));
+  border-top: 0.5px solid hsl(var(--border-200) / 30%);
+}
+
+.claude-chat-panel .timeline-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.claude-chat-panel .timeline-section {
+  margin-bottom: 0;
+}
+
+.claude-chat-panel .timeline-section-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: hsl(var(--text-400));
+  font-family: var(--font-ui);
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.claude-chat-panel .timeline-code {
+  margin-top: 0.25rem;
+  background-color: hsl(var(--bg-200));
+  border-radius: 0.25rem;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.688rem;
+}
+
+.claude-chat-panel .timeline-code pre {
+  display: block;
+  background: transparent;
+  padding: 0.5rem;
+  margin: 0;
+  color: rgb(51, 51, 51);
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.claude-chat-panel .timeline-code .timeline-code-collapsible pre {
+  padding: 0;
+}
+
+.claude-chat-panel .timeline-code .json-key {
+  color: rgb(111, 66, 193);
+}
+
+.claude-chat-panel .timeline-code .json-number {
+  color: rgb(0, 92, 197);
+}
+
+.claude-chat-panel .timeline-code .json-string {
+  color: rgb(3, 47, 98);
+}
+
+.claude-chat-panel .timeline-code .json-boolean {
+  color: rgb(0, 134, 179);
+}
+
+.claude-chat-panel .timeline-code-collapsible {
+  position: relative;
+}
+
+.claude-chat-panel .timeline-code-content {
+  position: relative;
+}
+
+.claude-chat-panel .timeline-code-content pre {
+  display: block;
+  background: transparent;
+  padding: 0.5rem;
+  margin: 0;
+  color: rgb(51, 51, 51);
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.claude-chat-panel .timeline-code-content.truncated::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3rem;
+  background: linear-gradient(transparent, hsl(var(--bg-200)));
+  pointer-events: none;
+}
+
+.claude-chat-panel .timeline-show-more {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.125rem 0.5rem;
+  border: none;
+  background: none;
+  color: hsl(var(--accent-main-100, 15 55.6% 52.4%));
+  font-size: 0.6875rem;
+  font-weight: 500;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 0.15s ease;
+}
+
+.claude-chat-panel .timeline-show-more:hover {
+  opacity: 1;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   THINKING / LOADING STATES — ported from Excel add-in
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.claude-chat-panel .thinking-indicator {
+  padding: 0.25rem 0;
+  padding-left: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.claude-chat-panel .thinking-icon {
+  display: inline-block;
+  width: 1.375rem;
+  aspect-ratio: 1 / 1;
+  color: hsl(var(--accent-brand));
+}
+
+.claude-chat-panel .thinking-text {
+  font-family: var(--font-claude-response);
+  font-size: 0.875rem;
+  color: hsl(var(--text-100));
+  line-height: 1.625;
+}
+
+.claude-chat-panel .thinking-elapsed {
+  font-size: 0.75rem;
+  color: hsl(var(--text-400));
+  font-family: var(--font-ui);
+}
+
+.claude-chat-panel .thinking-outer-header {
+  display: flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  border-radius: var(--radius-md);
+  transition: background 0.15s ease;
+}
+
+.claude-chat-panel .thinking-outer-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.claude-chat-panel .thinking-outer-label {
+  font-size: 0.75rem;
+  font-family: var(--font-ui);
+  color: hsl(var(--text-400));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.claude-chat-panel .thinking-content-wrapper {
+  overflow: hidden;
+  transition: height 0.2s cubic-bezier(0.2, 0.9, 0.35, 1),
+              opacity 0.15s ease;
+  max-height: 200px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.claude-chat-panel .thinking-content-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.claude-chat-panel .thinking-fade-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1.5rem;
+  background: linear-gradient(to bottom, hsl(var(--bg-100)) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.claude-chat-panel .thinking-raw-content {
+  margin-left: 0.75rem;
+  padding-left: 0.75rem;
+  border-left: 2px solid hsl(var(--bg-300));
+  margin-top: 0.25rem;
+  margin-bottom: 0.375rem;
+  font-size: 0.75rem;
+  color: hsl(var(--text-400) / 0.72);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  font-family: var(--font-ui);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   COLLAPSIBLE SECTION STYLES (for Thinking sections)
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.claude-chat-panel .collapsible-section {
+  margin-bottom: 0.25rem;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.claude-chat-panel .collapsible-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-size: 0.75rem;
+  color: hsl(var(--text-200));
+  transition: all 0.15s ease;
+}
+
+.claude-chat-panel .collapsible-header:hover {
+  background-color: hsl(var(--bg-200));
+}
+
+.claude-chat-panel .collapsible-chevron {
+  flex-shrink: 0;
+  opacity: 0.6;
+  transition: transform 0.2s ease;
+}
+
+.claude-chat-panel .collapsible-chevron.expanded {
+  transform: rotate(90deg);
+}
+
+.claude-chat-panel .collapsible-title {
+  flex: 1;
+  font-weight: 500;
+  color: hsl(var(--text-300));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.claude-chat-panel .collapsible-content {
+  margin-left: 1.25rem;
+  padding-left: 0.875rem;
+  border-left: 2px solid hsl(var(--bg-300));
+  margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.75rem;
+  color: hsl(var(--text-400));
+  line-height: 1.6;
+  white-space: pre-wrap;
+}

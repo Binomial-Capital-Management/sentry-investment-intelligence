@@ -1,0 +1,47 @@
+{
+  "label": "6_patch_genomics",
+  "row_count": 100000,
+  "surface_name": "bounded_patch",
+  "genus": 0,
+  "orientable": true,
+  "euler_characteristic": 2,
+  "classification_mode": "validated_2d_faces",
+  "surface_confidence": 1.0,
+  "betti_0": 1,
+  "betti_1": 185601,
+  "vertex_count": 3200,
+  "edge_count": 188800,
+  "face_count": 3081,
+  "exported_faces": 3081,
+  "face_coverage": 1.0,
+  "occupancy": 1.0,
+  "boundary_edge_count": 236,
+  "boundary_loop_count": 1,
+  "face_euler_characteristic": 1,
+  "face_genus_estimate": 0.0,
+  "axes": [
+    {
+      "column": "tissue",
+      "type": "categorical",
+      "size": 40,
+      "wraps": false,
+      "wrap_orientation": 0,
+      "ordered": false
+    },
+    {
+      "column": "gene",
+      "type": "categorical",
+      "size": 80,
+      "wraps": false,
+      "wrap_orientation": 0,
+      "ordered": false
+    }
+  ],
+  "field_columns": [
+    "expression",
+    "p_value",
+    "fold_change"
+  ],
+  "primary_field": "expression",
+  "build_ms": 5907.8
+}

@@ -1,0 +1,54 @@
+# =============================================================================
+# Production Environment Variables
+# =============================================================================
+# Copy this file to terraform.tfvars and fill in the values.
+# NEVER commit terraform.tfvars to git (it's in .gitignore)
+# =============================================================================
+
+# General
+environment  = "production"
+aws_region   = "us-east-1"
+project_name = "binomial-sentry"
+
+# VPC & Networking (existing resources)
+vpc_id             = "<VPC_ID>"
+vpc_cidr           = "10.0.0.0/16"
+private_subnet_ids = ["<SUBNET_ID>", "<SUBNET_ID>"]
+public_subnet_ids  = ["<SUBNET_ID>", "<SUBNET_ID>"]
+availability_zones = ["us-east-1a", "us-east-1b"]
+
+# ECS
+ecs_cluster_name  = "binomial-sentry-cluster"
+ecs_service_name  = "binomial-sentry-backend-service-b9ze202w"
+ecs_cpu           = 4096  # 4 vCPU
+ecs_memory        = 8192  # 8 GB
+ecs_desired_count = 2
+container_port    = 8002
+
+# Database (SENSITIVE - use AWS Secrets Manager in CI/CD)
+aurora_cluster_identifier = "binomial-sentry-cluster"
+aurora_instance_class     = "db.t4g.medium"
+aurora_instance_count     = 2
+# db_master_username      = "REDACTED"  # From Secrets Manager
+# db_master_password      = "REDACTED"  # From Secrets Manager
+
+# ALB & SSL
+alb_name        = "binomial-sentry-backend-alb"
+certificate_arn = "arn:aws:acm:us-east-1:<AWS_ACCOUNT_ID>:certificate/3c7766be-ce7c-4b80-8d2e-2773a4cca294"
+
+# Domain & DNS
+domain_name     = "binomialsentry.ai"
+route53_zone_id = "<ROUTE53_ZONE_ID>"
+
+# S3 Buckets
+frontend_bucket_name  = "binomial-sentry-frontend-bcm001"
+artifacts_bucket_name = "binomial-artifacts-prod"
+
+# CloudFront
+cloudfront_distribution_id = "E12K8DUMY7C9U9"
+
+# EFS
+efs_file_system_id = "<EFS_ID>"
+
+# Logging
+log_retention_days = 30

@@ -1,0 +1,234 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "binomial-risk-analyst"
+version = "6.2.0"
+description = "Institutional-grade investment analytics platform with AI-powered natural language interface"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+    {name = "Binomial Capital Management", email = "support@bcmassets.com"}
+]
+keywords = ["portfolio", "risk", "analysis", "finance", "investment", "AI", "quantitative"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Topic :: Office/Business :: Financial :: Investment",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    # Core dependencies will be read from requirements.txt
+]
+
+[project.urls]
+"Homepage" = "https://binomialsentry.ai"
+"Repository" = "https://github.com/binomialcapital/binomial-risk-analyst"
+"Bug Reports" = "https://github.com/binomialcapital/binomial-risk-analyst/issues"
+"Documentation" = "https://docs.binomialsentry.ai"
+
+[project.scripts]
+binomial-cli = "main:main"
+binomial-web = "app_fastapi:main"
+
+# =============================================================================
+# LINTING AND FORMATTING CONFIGURATION
+# =============================================================================
+
+[tool.black]
+line-length = 100
+target-version = ['py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    # directories
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | venv
+  | env
+  | _build
+  | buck-out
+  | build
+  | dist
+  | migrations
+  | node_modules
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+skip_glob = ["**/migrations/*", "**/venv/*", "**/env/*", "**/node_modules/*"]
+known_first_party = ["core", "api", "tests"]
+known_third_party = [
+    "fastapi", "pydantic", "sqlalchemy", "asyncpg", "redis", "kafka",
+    "plotly", "pandas", "numpy", "scipy", "openai", "langgraph",
+    "clerk", "boto3", "uvicorn", "starlette"
+]
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+
+[tool.flake8]
+max-line-length = 100
+max-complexity = 12
+ignore = [
+    "E203",  # whitespace before ':'  (conflicts with black)
+    "E501",  # line too long (handled by black)
+    "W503",  # line break before binary operator (conflicts with black)
+    "E231",  # missing whitespace after ',' (handled by black)
+    "F401",  # imported but unused (handled by isort)
+    "F811",  # redefined while unused (common in type checking)
+]
+exclude = [
+    ".git",
+    "__pycache__",
+    "venv",
+    "env",
+    ".venv",
+    "build",
+    "dist",
+    "*.egg-info",
+    "migrations",
+    "node_modules",
+    ".mypy_cache",
+    ".pytest_cache",
+]
+per-file-ignores = [
+    "__init__.py:F401",  # Allow unused imports in __init__.py
+    "tests/*:F401,F811", # Allow test-specific patterns
+    "*/migrations/*:E501,F401", # Relax rules for migration files
+]
+
+[tool.pylint]
+[tool.pylint.messages_control]
+disable = [
+    "C0114",  # missing-module-docstring
+    "C0115",  # missing-class-docstring
+    "C0116",  # missing-function-docstring
+    "R0903",  # too-few-public-methods (common for data classes)
+    "R0913",  # too-many-arguments (common in financial functions)
+    "W0212",  # protected-access (sometimes needed for testing)
+    "C0103",  # invalid-name (conflicts with pandas/numpy conventions)
+]
+
+[tool.pylint.format]
+max-line-length = 100
+
+[tool.pylint.design]
+max-args = 8
+max-attributes = 12
+max-public-methods = 20
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false  # Gradually enable this
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = false  # Many third-party decorators are untyped
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_unreachable = true
+strict_equality = true
+show_error_codes = true
+
+[[tool.mypy.overrides]]
+module = [
+    "plotly.*",
+    "yfinance.*",
+    "pandas.*",
+    "numpy.*",
+    "scipy.*",
+    "sklearn.*",
+    "langchain.*",
+    "langgraph.*",
+    "kafka.*",
+    "aiokafka.*",
+    "clerk.*",
+    "boto3.*",
+    "botocore.*",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+    "--cov=core",
+    "--cov=api",
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov",
+    "--cov-report=xml",
+]
+testpaths = ["tests"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "postgres: marks tests that require PostgreSQL",
+    "redis: marks tests that require Redis",
+    "kafka: marks tests that require Kafka",
+    "fmp: marks tests that require FMP API",
+    "openai: marks tests that require OpenAI API",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning:pandas.*",
+    "ignore::DeprecationWarning:numpy.*",
+    "ignore::UserWarning:plotly.*",
+]
+
+[tool.coverage.run]
+source = ["core", "api"]
+omit = [
+    "*/tests/*",
+    "*/migrations/*",
+    "*/venv/*",
+    "*/env/*",
+    "*/__pycache__/*",
+    "*/node_modules/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.bandit]
+exclude_dirs = ["tests", "venv", "env", ".venv", "node_modules"]
+skips = [
+    "B101",  # assert_used - common in tests
+    "B601",  # paramiko_calls - we don't use paramiko
+    "B602",  # subprocess_popen_with_shell_equals_true - carefully controlled usage
+]
+
+[tool.bandit.assert_used]
+skips = ['*_test.py', '*/test_*.py', '*/tests/*']

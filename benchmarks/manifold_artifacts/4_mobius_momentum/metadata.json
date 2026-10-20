@@ -1,0 +1,47 @@
+{
+  "label": "4_mobius_momentum",
+  "row_count": 100000,
+  "surface_name": "mobius_band",
+  "genus": 1,
+  "orientable": false,
+  "euler_characteristic": 0,
+  "classification_mode": "validated_2d_faces",
+  "surface_confidence": 1.0,
+  "betti_0": 1,
+  "betti_1": 6841,
+  "vertex_count": 720,
+  "edge_count": 7560,
+  "face_count": 684,
+  "exported_faces": 684,
+  "face_coverage": 1.0,
+  "occupancy": 1.0,
+  "boundary_edge_count": 72,
+  "boundary_loop_count": 2,
+  "face_euler_characteristic": 0,
+  "face_genus_estimate": 0.0,
+  "axes": [
+    {
+      "column": "sector",
+      "type": "categorical",
+      "size": 20,
+      "wraps": false,
+      "wrap_orientation": 0,
+      "ordered": false
+    },
+    {
+      "column": "month",
+      "type": "temporal",
+      "size": 36,
+      "wraps": true,
+      "wrap_orientation": -1,
+      "ordered": true
+    }
+  ],
+  "field_columns": [
+    "momentum",
+    "mean_reversion",
+    "signal_strength"
+  ],
+  "primary_field": "momentum",
+  "build_ms": 609.1
+}

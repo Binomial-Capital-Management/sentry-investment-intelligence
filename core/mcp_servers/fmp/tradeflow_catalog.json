@@ -1,0 +1,684 @@
+{
+  "version": "2.0.0",
+  "last_updated": "2025-10-03",
+  "source": "Financial Modeling Prep API - Stable Endpoints - Institutional Trade Flow & Ownership",
+  "notes": "v2.0.0: Migrated all endpoints to /stable/, added apikey to all params_schema, fixed senate-trading URL to senate-trades",
+  "datasets": [
+    {
+      "dataset": "esg-disclosures",
+      "class": "esg",
+      "discoverable": true,
+      "url": "/stable/esg-disclosures",
+      "identifier_param": "symbol",
+      "method": "GET",
+      "params_schema": {
+        "symbol": "string",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 86400,
+      "notes": "Purpose: ESG disclosures. Required: symbol. Sample: GET /stable/esg-disclosures?symbol=AAPL. Output: disclosure items for E/S/G; useful for ESG risk context."
+    },
+    {
+      "dataset": "esg-ratings",
+      "class": "esg",
+      "discoverable": true,
+      "url": "/stable/esg-ratings",
+      "identifier_param": "symbol",
+      "method": "GET",
+      "params_schema": {
+        "symbol": "string",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 86400,
+      "notes": "Purpose: ESG ratings and scores. Required: symbol. Sample: GET /stable/esg-ratings?symbol=AAPL. Use for snapshot; cite methodology limitations."
+    },
+    {
+      "dataset": "esg-benchmark",
+      "class": "esg",
+      "discoverable": true,
+      "url": "/stable/esg-benchmark",
+      "method": "GET",
+      "params_schema": {
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 86400,
+      "notes": "Purpose: ESG benchmark (no symbol). Sample: GET /stable/esg-benchmark. Compare sector/industry baselines."
+    },
+    {
+      "dataset": "etf-holdings",
+      "class": "etf",
+      "discoverable": true,
+      "url": "/stable/etf/holdings",
+      "identifier_param": "symbol",
+      "method": "GET",
+      "params_schema": {
+        "symbol": "string",
+        "date": "string",
+        "page": "number",
+        "limit": "number",
+        "size": "number",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 86400,
+      "allow_additional_params": true,
+      "notes": "Purpose: ETF holdings with weights. Required: symbol; Optional: date=YYYY‑MM‑DD. Sample: GET /stable/etf/holdings?symbol=SPY&date=2025-09-30."
+    },
+    {
+      "dataset": "etf-info",
+      "class": "etf",
+      "discoverable": true,
+      "url": "/stable/etf/info",
+      "identifier_param": "symbol",
+      "method": "GET",
+      "params_schema": {
+        "symbol": "string",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 86400,
+      "notes": "ETF profile information including expense ratio, inception date, and AUM"
+    },
+    {
+      "dataset": "etf-country-weightings",
+      "class": "etf",
+      "discoverable": true,
+      "url": "/stable/etf/country-weightings",
+      "identifier_param": "symbol",
+      "method": "GET",
+      "params_schema": {
+        "symbol": "string",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 86400,
+      "notes": "Geographic exposure breakdown by country for ETFs"
+    },
+    {
+      "dataset": "etf-asset-exposure",
+      "class": "etf",
+      "discoverable": true,
+      "url": "/stable/etf/asset-exposure",
+      "identifier_param": "symbol",
+      "method": "GET",
+      "params_schema": {
+        "symbol": "string",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 86400,
+      "notes": "Asset class allocation breakdown (stocks, bonds, cash, etc.)"
+    },
+    {
+      "dataset": "etf-sector-weightings",
+      "class": "etf",
+      "discoverable": true,
+      "url": "/stable/etf/sector-weightings",
+      "identifier_param": "symbol",
+      "method": "GET",
+      "params_schema": {
+        "symbol": "string",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 86400,
+      "notes": "Sector allocation breakdown for equity ETFs"
+    },
+    {
+      "dataset": "funds-disclosure-holders-latest",
+      "class": "etf",
+      "discoverable": true,
+      "url": "/stable/funds/disclosure-holders-latest",
+      "identifier_param": "symbol",
+      "method": "GET",
+      "params_schema": {
+        "symbol": "string",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 86400,
+      "notes": "Latest mutual fund holders for a given stock"
+    },
+    {
+      "dataset": "funds-disclosure",
+      "class": "etf",
+      "discoverable": true,
+      "url": "/stable/funds/disclosure",
+      "identifier_param": "symbol",
+      "method": "GET",
+      "params_schema": {
+        "symbol": "string",
+        "year": "string",
+        "quarter": "string",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 86400,
+      "notes": "Historical mutual fund holdings disclosures by year and quarter (Q1, Q2, Q3, Q4)"
+    },
+    {
+      "dataset": "funds-disclosure-holders-search",
+      "class": "etf",
+      "discoverable": true,
+      "url": "/stable/funds/disclosure-holders-search",
+      "identifier_param": "name",
+      "method": "GET",
+      "params_schema": {
+        "name": "string",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 86400,
+      "notes": "Search for mutual funds by fund/ETF name"
+    },
+    {
+      "dataset": "funds-disclosure-dates",
+      "class": "etf",
+      "discoverable": true,
+      "url": "/stable/funds/disclosure-dates",
+      "identifier_param": "symbol",
+      "method": "GET",
+      "params_schema": {
+        "symbol": "string",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 86400,
+      "notes": "Available disclosure dates for mutual fund holdings"
+    },
+    {
+      "dataset": "institutional-ownership-latest",
+      "class": "institutional",
+      "discoverable": true,
+      "url": "/stable/institutional-ownership/latest",
+      "method": "GET",
+      "params_schema": {
+        "page": "number",
+        "limit": "number",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 3600,
+      "notes": "Latest Form 13F institutional holdings filings (paginated)"
+    },
+    {
+      "dataset": "institutional-ownership-extract",
+      "class": "institutional",
+      "discoverable": true,
+      "url": "/stable/institutional-ownership/extract",
+      "identifier_param": "cik",
+      "method": "GET",
+      "params_schema": {
+        "cik": "string",
+        "year": "string",
+        "quarter": "string",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 86400,
+      "notes": "Historical Form 13F filings by CIK (institutional holder identifier), year, and quarter"
+    },
+    {
+      "dataset": "institutional-ownership-dates",
+      "class": "institutional",
+      "discoverable": true,
+      "url": "/stable/institutional-ownership/dates",
+      "identifier_param": "cik",
+      "method": "GET",
+      "params_schema": {
+        "cik": "string",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 86400,
+      "notes": "Available filing dates for institutional holdings by CIK"
+    },
+    {
+      "dataset": "institutional-ownership-extract-analytics-holder",
+      "class": "institutional",
+      "discoverable": true,
+      "url": "/stable/institutional-ownership/extract-analytics/holder",
+      "identifier_param": "symbol",
+      "method": "GET",
+      "params_schema": {
+        "symbol": "string",
+        "year": "string",
+        "quarter": "string",
+        "page": "number",
+        "limit": "number",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 86400,
+      "notes": "Portfolio composition and analytics for holders of a specific symbol by quarter (paginated)"
+    },
+    {
+      "dataset": "institutional-ownership-holder-performance-summary",
+      "class": "institutional",
+      "discoverable": true,
+      "url": "/stable/institutional-ownership/holder-performance-summary",
+      "identifier_param": "cik",
+      "method": "GET",
+      "params_schema": {
+        "cik": "string",
+        "page": "number",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 86400,
+      "notes": "Performance metrics and track record for institutional holders by CIK (paginated)"
+    },
+    {
+      "dataset": "institutional-ownership-holder-industry-breakdown",
+      "class": "institutional",
+      "discoverable": true,
+      "url": "/stable/institutional-ownership/holder-industry-breakdown",
+      "identifier_param": "cik",
+      "method": "GET",
+      "params_schema": {
+        "cik": "string",
+        "year": "string",
+        "quarter": "string",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 86400,
+      "notes": "Industry sector allocation for institutional portfolios by CIK and quarter"
+    },
+    {
+      "dataset": "institutional-ownership-symbol-positions-summary",
+      "class": "institutional",
+      "discoverable": true,
+      "url": "/stable/institutional-ownership/symbol-positions-summary",
+      "identifier_param": "symbol",
+      "method": "GET",
+      "params_schema": {
+        "symbol": "string",
+        "year": "string",
+        "quarter": "string",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 3600,
+      "notes": "Summary of all institutional positions for a stock by quarter"
+    },
+    {
+      "dataset": "institutional-ownership-industry-summary",
+      "class": "institutional",
+      "discoverable": true,
+      "url": "/stable/institutional-ownership/industry-summary",
+      "method": "GET",
+      "params_schema": {
+        "year": "string",
+        "quarter": "string",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 5,
+        "burst": 15
+      },
+      "cache_ttl": 86400,
+      "notes": "Institutional ownership trends by industry sector for a specific quarter"
+    },
+    {
+      "dataset": "insider-trading-latest",
+      "class": "insider",
+      "discoverable": true,
+      "url": "/stable/insider-trading/latest",
+      "method": "GET",
+      "params_schema": {
+        "page": "number",
+        "limit": "number",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 1800,
+      "notes": "Latest insider trading transactions across all stocks (paginated)"
+    },
+    {
+      "dataset": "insider-trading-search",
+      "class": "insider",
+      "discoverable": true,
+      "url": "/stable/insider-trading/search",
+      "method": "GET",
+      "params_schema": {
+        "page": "number",
+        "limit": "number",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 3600,
+      "notes": "Search insider trading transactions (paginated)"
+    },
+    {
+      "dataset": "insider-trading-reporting-name",
+      "class": "insider",
+      "discoverable": true,
+      "url": "/stable/insider-trading/reporting-name",
+      "identifier_param": "name",
+      "method": "GET",
+      "params_schema": {
+        "name": "string",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 3600,
+      "notes": "Search insider trading by reporting person name (e.g., 'Zuckerberg')"
+    },
+    {
+      "dataset": "insider-trading-transaction-type",
+      "class": "insider",
+      "discoverable": true,
+      "url": "/stable/insider-trading-transaction-type",
+      "method": "GET",
+      "params_schema": {
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 86400,
+      "notes": "List of insider trading transaction type codes and descriptions"
+    },
+    {
+      "dataset": "insider-trading-statistics",
+      "class": "insider",
+      "discoverable": true,
+      "url": "/stable/insider-trading/statistics",
+      "identifier_param": "symbol",
+      "method": "GET",
+      "params_schema": {
+        "symbol": "string",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 3600,
+      "notes": "Aggregated insider trading statistics for a stock"
+    },
+    {
+      "dataset": "acquisition-of-beneficial-ownership",
+      "class": "insider",
+      "discoverable": true,
+      "url": "/stable/acquisition-of-beneficial-ownership",
+      "identifier_param": "symbol",
+      "method": "GET",
+      "params_schema": {
+        "symbol": "string",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 3600,
+      "notes": "Schedule 13D and 13G filings for beneficial ownership changes >5%"
+    },
+    {
+      "dataset": "senate-latest",
+      "class": "congressional",
+      "discoverable": true,
+      "url": "/stable/senate-latest",
+      "method": "GET",
+      "params_schema": {
+        "page": "number",
+        "limit": "number",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 1800,
+      "notes": "Latest Senate stock trading disclosures (STOCK Act, paginated)"
+    },
+    {
+      "dataset": "house-latest",
+      "class": "congressional",
+      "discoverable": true,
+      "url": "/stable/house-latest",
+      "method": "GET",
+      "params_schema": {
+        "page": "number",
+        "limit": "number",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 1800,
+      "notes": "Latest House of Representatives stock trading disclosures (STOCK Act, paginated)"
+    },
+    {
+      "dataset": "senate-trading",
+      "class": "congressional",
+      "discoverable": true,
+      "url": "/stable/senate-trades",
+      "identifier_param": "symbol",
+      "method": "GET",
+      "params_schema": {
+        "symbol": "string",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 3600,
+      "notes": "Senate trading activity for a specific stock"
+    },
+    {
+      "dataset": "senate-trades-by-name",
+      "class": "congressional",
+      "discoverable": true,
+      "url": "/stable/senate-trades-by-name",
+      "identifier_param": "name",
+      "method": "GET",
+      "params_schema": {
+        "name": "string",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 3600,
+      "notes": "Trading history for a specific Senator by name"
+    },
+    {
+      "dataset": "house-trades",
+      "class": "congressional",
+      "discoverable": true,
+      "url": "/stable/house-trades",
+      "identifier_param": "symbol",
+      "method": "GET",
+      "params_schema": {
+        "symbol": "string",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 3600,
+      "notes": "House trading activity for a specific stock"
+    },
+    {
+      "dataset": "house-trades-by-name",
+      "class": "congressional",
+      "discoverable": true,
+      "url": "/stable/house-trades-by-name",
+      "identifier_param": "name",
+      "method": "GET",
+      "params_schema": {
+        "name": "string",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 3600,
+      "notes": "Trading history for a specific House Representative by name"
+    },
+    {
+      "dataset": "mergers-acquisitions-search",
+      "class": "ma",
+      "discoverable": true,
+      "url": "/stable/mergers-acquisitions-search",
+      "identifier_param": "name",
+      "method": "GET",
+      "params_schema": {
+        "name": "string",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 86400,
+      "notes": "Search for M&A deals by company name. Returns mergers, acquisitions, and corporate transactions."
+    },
+    {
+      "dataset": "mergers-acquisitions-latest",
+      "class": "ma",
+      "discoverable": true,
+      "url": "/stable/mergers-acquisitions-latest",
+      "method": "GET",
+      "params_schema": {
+        "page": "number",
+        "limit": "number",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 3600,
+      "notes": "Latest M&A deals and transactions (paginated). Recent corporate mergers and acquisitions."
+    },
+    {
+      "dataset": "ipos-disclosure",
+      "class": "ipo",
+      "discoverable": true,
+      "url": "/stable/ipos-disclosure",
+      "method": "GET",
+      "params_schema": {
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 86400,
+      "notes": "IPO disclosure filings and prospectus summaries. Companies in IPO pipeline."
+    },
+    {
+      "dataset": "ipos-prospectus",
+      "class": "ipo",
+      "discoverable": true,
+      "url": "/stable/ipos-prospectus",
+      "method": "GET",
+      "params_schema": {
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 86400,
+      "notes": "IPO prospectus documents and detailed company information for upcoming IPOs."
+    },
+    {
+      "dataset": "key-executives",
+      "class": "company",
+      "discoverable": true,
+      "url": "/stable/key-executives",
+      "identifier_param": "symbol",
+      "method": "GET",
+      "params_schema": {
+        "symbol": "string",
+        "apikey": "string"
+      },
+      "rate_limit": {
+        "rps": 10,
+        "burst": 30
+      },
+      "cache_ttl": 86400,
+      "notes": "Company key executives, management team, and leadership profiles."
+    }
+  ]
+}

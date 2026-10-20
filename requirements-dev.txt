@@ -1,0 +1,39 @@
+# Development dependencies for Binomial Risk Analyst V6
+# Code formatting and linting tools
+
+# Code formatting
+black>=24.0.0              # Python code formatter
+isort>=5.13.0              # Import sorting
+
+# Linting and static analysis
+flake8>=7.0.0              # Style guide enforcement
+pylint>=3.0.0              # Code quality analysis
+mypy>=1.8.0                # Static type checking
+bandit>=1.7.5              # Security vulnerability scanner
+
+# Testing
+pytest>=8.0.0             # Testing framework
+pytest-cov>=4.0.0         # Coverage reporting
+pytest-asyncio>=0.23.0    # Async testing support
+pytest-mock>=3.12.0       # Mocking utilities
+pytest-xdist>=3.5.0       # Parallel testing
+
+# Development utilities
+pre-commit>=3.6.0         # Git hooks for quality checks
+pip-tools>=7.3.0          # Dependency management
+wheel>=0.42.0             # Package building
+
+# Documentation
+sphinx>=7.2.0             # Documentation generation
+sphinx-rtd-theme>=2.0.0   # ReadTheDocs theme
+
+# Type stubs for better type checking
+types-requests>=2.31.0
+types-python-dateutil>=2.8.0
+types-redis>=4.6.0
+
+# Optional: Advanced linting plugins
+flake8-docstrings>=1.7.0  # Docstring linting
+flake8-bugbear>=24.0.0    # Additional bug detection
+flake8-import-order>=0.18.2  # Import order checking
+flake8-comprehensions>=3.14.0  # List/dict comprehension improvements

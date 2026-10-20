@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OneDrive Picker</title>
+    <script type="text/javascript" src="https://alcdn.msauth.net/browser/imp/OneDrive.min.js"></script>
+</head>
+<body>
+    <script type="text/javascript">
+        (function resumePicker() {
+            if (window.opener && window.opener.OneDrive && window.opener.OneDrive.resume) {
+                window.opener.OneDrive.resume(window.location.href);
+                window.close();
+            } else {
+                setTimeout(resumePicker, 50);
+            }
+        })();
+    </script>
+</body>
+</html>

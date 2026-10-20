@@ -1,0 +1,1006 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2025-12-01",
+  "source": "Unusual Whales API - Options Flow Data",
+  "base_url": "https://api.unusualwhales.com",
+  "notes": "Options flow, greek flow, and derivatives analytics from Unusual Whales",
+  "enums": {
+    "order": ["desc", "asc"],
+    "trade_side": ["ALL", "ASK", "BID", "MID"],
+    "option_type": ["call", "put"],
+    "issue_type": ["Common Stock", "ETF", "Index", "ADR"],
+    "rule_name": ["FloorTradeSmallCap", "FloorTradeMidCap", "RepeatedHits", "RepeatedHitsAscendingFill", "RepeatedHitsDescendingFill", "FloorTradeLargeCap", "OtmEarningsFloor", "LowHistoricVolumeFloor", "SweepsFollowedByFloor"],
+    "screener_order_by": ["bid_ask_vol", "bull_bear_vol", "contract_pricing", "daily_perc_change", "diff", "dte", "earnings", "expires", "expiry", "floor_volume", "floor_volume_ratio", "from_high", "from_low", "iv", "multileg_volume", "open_interest", "premium", "spread", "stock_price", "tape_time", "ticker", "total_multileg_volume_ratio", "trades", "volume", "volume_oi_ratio", "volume_ticker_vol_ratio"],
+    "er_time": ["unknown", "afterhours", "premarket"],
+    "flow_filter": ["NetPremium", "Volume", "Trades"],
+    "sector": ["Basic Materials", "Communication Services", "Consumer Cyclical", "Consumer Defensive", "Energy", "Financial Services", "Healthcare", "Industrials", "Real Estate", "Technology", "Utilities"],
+    "expiration_filter": ["weekly", "zero_dte"],
+    "moneyness": ["all", "itm", "otm", "atm"],
+    "tide_type": ["all", "equity_only", "etf_only", "index_only"],
+    "flow_group": [
+      "airline", "bank", "basic materials", "china", "communication services",
+      "consumer cyclical", "consumer defensive", "crypto", "cyber", "energy",
+      "financial services", "gas", "gold", "healthcare", "industrials", "mag7",
+      "oil", "real estate", "refiners", "reit", "semi", "silver", "technology",
+      "uranium", "utilities"
+    ],
+    "timeframe": ["1D", "2D", "1W", "2W", "1M", "2M", "3M", "6M", "1Y", "2Y", "YTD"]
+  },
+  "datasets": [
+    {
+      "dataset": "group-greek-flow",
+      "class": "options_flow",
+      "discoverable": true,
+      "url": "/api/group-flow/{flow_group}/greek-flow",
+      "method": "GET",
+      "identifier_param": "flow_group",
+      "params_schema": {
+        "flow_group": "enum[flow_group]",
+        "date": "date?"
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 60,
+      "notes": "Purpose: Aggregated greek flow (delta & vega) for a sector/thematic group broken down per minute. Required: flow_group (e.g., 'mag7', 'semi', 'energy'). Optional: date (defaults to last trading day). Output: Arrays of minute-by-minute directional/total delta flow, vega flow, net call/put premium and volume, OTM-specific flows, transaction counts. Use for sector-level options positioning and flow analysis."
+    },
+    {
+      "dataset": "group-greek-flow-by-expiry",
+      "class": "options_flow",
+      "discoverable": true,
+      "url": "/api/group-flow/{flow_group}/greek-flow/{expiry}",
+      "method": "GET",
+      "identifier_param": "flow_group",
+      "params_schema": {
+        "flow_group": "enum[flow_group]",
+        "expiry": "date",
+        "date": "date?"
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 60,
+      "notes": "Purpose: Greek flow for a sector group filtered to a specific expiration date. Required: flow_group, expiry (ISO date). Optional: date. Output: Same as group-greek-flow but filtered to contracts expiring on the specified date. Use for analyzing flow into specific expiration cycles (e.g., monthly opex, quarterly)."
+    },
+    {
+      "dataset": "market-oi-change",
+      "class": "options_flow",
+      "discoverable": true,
+      "url": "/api/market/oi-change",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {
+        "date": "date?",
+        "limit": "integer?",
+        "order": "enum[order]?"
+      },
+      "param_defaults": {
+        "limit": 50,
+        "order": "desc"
+      },
+      "param_constraints": {
+        "limit": {"min": 1, "max": 200}
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 300,
+      "notes": "Purpose: Find contracts with largest open interest changes. Excludes Index/ETF contracts (single-name equities only). Optional: date, limit (1-200, default 100), order (desc/asc). Output: Contract details with current/previous OI, OI change %, absolute diff, avg price, volume breakdown by side, premium. Use for detecting new large positions or position unwinds."
+    },
+    {
+      "dataset": "market-total-options-volume",
+      "class": "options_flow",
+      "discoverable": true,
+      "url": "/api/market/total-options-volume",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {
+        "limit": "integer?"
+      },
+      "param_defaults": {
+        "limit": 1
+      },
+      "param_constraints": {
+        "limit": {"min": 1, "max": 500}
+      },
+      "rate_limit": {"rps": 10, "burst": 30},
+      "cache_ttl": 60,
+      "notes": "Purpose: Market-wide options volume and premium summary. Optional: limit (1-500, default 1 for latest day). Output: Daily totals for call/put volume and premium across all executions. Use for market overview dashboards, tracking overall options activity levels, put/call ratios."
+    },
+    {
+      "dataset": "net-flow-expiry",
+      "class": "options_flow",
+      "discoverable": true,
+      "url": "/api/net-flow/expiry",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {
+        "date": "date?",
+        "expiration": "array[enum[expiration_filter]]?",
+        "moneyness": "array[enum[moneyness]]?",
+        "tide_type": "array[enum[tide_type]]?"
+      },
+      "param_defaults": {
+        "expiration": ["weekly", "zero_dte"],
+        "moneyness": ["all"],
+        "tide_type": ["all"]
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 60,
+      "notes": "Purpose: Net premium flow segmented by expiration type, moneyness, and asset type. Optional: date, expiration (weekly/zero_dte), moneyness (all/itm/otm/atm), tide_type (all/equity_only/etf_only/index_only). Output: Grouped flow data points for building zero-DTE charts and flow visualizations. Use for 0DTE analysis, tracking premium flow into specific contract types."
+    },
+    {
+      "dataset": "option-contract-flow",
+      "class": "options_flow",
+      "discoverable": true,
+      "url": "/api/option-contract/{id}/flow",
+      "method": "GET",
+      "identifier_param": "id",
+      "params_schema": {
+        "id": "string",
+        "date": "date?",
+        "limit": "integer?",
+        "min_premium": "integer?",
+        "side": "enum[trade_side]?"
+      },
+      "param_defaults": {
+        "min_premium": 0,
+        "side": "ALL"
+      },
+      "param_constraints": {
+        "limit": {"min": 1},
+        "min_premium": {"min": 0}
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 60,
+      "notes": "Purpose: Individual trade-level flow for a specific option contract. Required: id (ISO format, e.g., TSLA230526P00167500). Optional: date, limit, min_premium, side (ALL/ASK/BID/MID). Output: Last 50 trades with full greeks (delta, gamma, theta, vega, rho), IV, fill price, premium, size, exchange, timestamps, volume by side, earnings info. Use for analyzing specific contract activity and trade-level flow."
+    },
+    {
+      "dataset": "option-contract-historic",
+      "class": "options_timeseries",
+      "discoverable": true,
+      "url": "/api/option-contract/{id}/historic",
+      "method": "GET",
+      "identifier_param": "id",
+      "params_schema": {
+        "id": "string",
+        "limit": "integer?"
+      },
+      "param_constraints": {
+        "limit": {"min": 1}
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 300,
+      "notes": "Purpose: Daily OHLC and volume history for a specific option contract. Required: id (ISO format). Optional: limit. Output: Per-day data including open/high/low/close prices, IV range (high/low), NBBO at close, volume breakdown (ask/bid/mid/floor/sweep/cross/multi-leg), OI, total premium, trade count. Use for charting contract price history and analyzing historical positioning."
+    },
+    {
+      "dataset": "option-contract-intraday",
+      "class": "options_timeseries",
+      "discoverable": true,
+      "url": "/api/option-contract/{id}/intraday",
+      "method": "GET",
+      "identifier_param": "id",
+      "params_schema": {
+        "id": "string",
+        "date": "date?"
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 60,
+      "notes": "Purpose: 1-minute OHLC bars for a specific option contract. Required: id (ISO format). Optional: date (defaults to last trading day). Output: Minute-by-minute OHLC, IV range, avg price, premium and volume broken down by side (ask/bid/mid/multi-leg). Use for intraday contract analysis and building minute charts."
+    },
+    {
+      "dataset": "option-contract-volume-profile",
+      "class": "options_flow",
+      "discoverable": true,
+      "url": "/api/option-contract/{id}/volume-profile",
+      "method": "GET",
+      "identifier_param": "id",
+      "params_schema": {
+        "id": "string",
+        "date": "date?"
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 300,
+      "notes": "Purpose: Volume distribution by fill price for a contract. Required: id (ISO format). Optional: date. Output: Per-price-level breakdown showing volume by type (ask/bid/mid/floor/sweep/cross/multi-leg) and transaction count. Use for volume profile analysis and identifying key price levels."
+    },
+    {
+      "dataset": "stock-expiry-breakdown",
+      "class": "options_reference",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/expiry-breakdown",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "date": "date?"
+      },
+      "rate_limit": {"rps": 10, "burst": 30},
+      "cache_ttl": 300,
+      "notes": "Purpose: List all available expirations for a ticker with aggregate stats. Required: ticker. Optional: date. Output: Per-expiry totals for chain count, open interest, and volume. Use for understanding expiration structure and identifying high-activity expiries."
+    },
+    {
+      "dataset": "stock-option-contracts",
+      "class": "options_reference",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/option-contracts",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "exclude_zero_dte": "boolean?",
+        "exclude_zero_oi_chains": "boolean?",
+        "exclude_zero_vol_chains": "boolean?",
+        "expiry": "date?",
+        "limit": "integer?",
+        "maybe_otm_only": "boolean?",
+        "option_symbol": "array[string]?",
+        "option_type": "enum[option_type]?",
+        "page": "integer?",
+        "vol_greater_oi": "boolean?"
+      },
+      "param_defaults": {
+        "limit": 50
+      },
+      "param_constraints": {
+        "limit": {"min": 1, "max": 500},
+        "page": {"min": 0}
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 60,
+      "notes": "Purpose: Full option chain listing with filtering. Required: ticker. Optional: expiry, option_type (call/put), OTM/zero-DTE/volume filters, pagination (page starts at 0, limit 1-500). Output: Per-contract data including OHLC, IV, NBBO, OI (current and previous), volume breakdown, total premium. Use for building option chains and screening contracts."
+    },
+    {
+      "dataset": "flow-alerts",
+      "class": "options_flow",
+      "discoverable": true,
+      "url": "/api/option-trades/flow-alerts",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {
+        "all_opening": "boolean?",
+        "is_ask_side": "boolean?",
+        "is_bid_side": "boolean?",
+        "is_call": "boolean?",
+        "is_floor": "boolean?",
+        "is_multi_leg": "boolean?",
+        "is_otm": "boolean?",
+        "is_put": "boolean?",
+        "is_sweep": "boolean?",
+        "issue_types[]": "array[enum[issue_type]]?",
+        "limit": "integer?",
+        "max_ask_perc": "number?",
+        "max_bear_perc": "number?",
+        "max_bid_perc": "number?",
+        "max_bull_perc": "number?",
+        "max_diff": "string?",
+        "max_dte": "integer?",
+        "max_iv_change": "number?",
+        "max_marketcap": "integer?",
+        "max_open_interest": "integer?",
+        "max_premium": "integer?",
+        "max_price": "number?",
+        "max_size": "integer?",
+        "max_size_vol_ratio": "number?",
+        "max_skew": "number?",
+        "max_spread": "number?",
+        "max_volume": "integer?",
+        "max_volume_oi_ratio": "integer?",
+        "min_ask_perc": "number?",
+        "min_bear_perc": "number?",
+        "min_bid_perc": "number?",
+        "min_bull_perc": "number?",
+        "min_diff": "string?",
+        "min_dte": "integer?",
+        "min_iv_change": "number?",
+        "min_marketcap": "integer?",
+        "min_open_interest": "integer?",
+        "min_premium": "integer?",
+        "min_price": "number?",
+        "min_size": "integer?",
+        "min_size_vol_ratio": "number?",
+        "min_skew": "number?",
+        "min_spread": "number?",
+        "min_volume": "integer?",
+        "min_volume_oi_ratio": "integer?",
+        "newer_than": "string?",
+        "older_than": "string?",
+        "rule_name[]": "array[enum[rule_name]]?",
+        "size_greater_oi": "boolean?",
+        "ticker_symbol": "string?",
+        "vol_greater_oi": "boolean?"
+      },
+      "param_defaults": {
+        "limit": 50
+      },
+      "param_constraints": {
+        "limit": {"min": 1, "max": 200},
+        "min_dte": {"min": 0},
+        "max_dte": {"min": 0},
+        "min_ask_perc": {"min": 0, "max": 1},
+        "max_ask_perc": {"min": 0, "max": 1},
+        "min_bid_perc": {"min": 0, "max": 1},
+        "max_bid_perc": {"min": 0, "max": 1},
+        "min_bull_perc": {"min": 0, "max": 1},
+        "max_bull_perc": {"min": 0, "max": 1},
+        "min_bear_perc": {"min": 0, "max": 1},
+        "max_bear_perc": {"min": 0, "max": 1},
+        "min_skew": {"min": 0, "max": 1},
+        "max_skew": {"min": 0, "max": 1}
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 30,
+      "notes": "Purpose: Real-time unusual options flow alerts with extensive filtering. Optional: Boolean filters for side/type/sweep/floor/multi-leg, min/max ranges for premium/size/DTE/IV/marketcap/OI/volume ratios, issue_types (Common Stock/ETF/Index/ADR), rule_name for specific alert patterns, ticker_symbol (comma-separated, prefix with - to exclude), newer_than/older_than for time pagination. Output: Alert details with greeks, premium, size, execution info, underlying data. Use for unusual activity detection and flow scanning."
+    },
+    {
+      "dataset": "screener-option-contracts",
+      "class": "options_screener",
+      "discoverable": true,
+      "url": "/api/screener/option-contracts",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {
+        "date": "date?",
+        "exclude_ex_div_ticker": "boolean?",
+        "expiry_dates[]": "array[date]?",
+        "is_otm": "boolean?",
+        "issue_types[]": "array[enum[issue_type]]?",
+        "limit": "integer?",
+        "max_ask_perc": "string?",
+        "max_ask_side_perc_7_day": "string?",
+        "max_avg_price": "string?",
+        "max_bear_perc": "string?",
+        "max_bid_perc": "string?",
+        "max_bid_side_perc_7_day": "string?",
+        "max_bull_perc": "string?",
+        "max_close": "string?",
+        "max_contract_30_d_avg_volume": "integer?",
+        "max_daily_perc_change": "string?",
+        "max_days_of_oi_increases": "integer?",
+        "max_days_of_vol_greater_than_oi": "integer?",
+        "max_delta": "string?",
+        "max_diff": "string?",
+        "max_dte": "integer?",
+        "max_earnings_dte": "integer?",
+        "max_floor_volume": "integer?",
+        "max_floor_volume_ratio": "string?",
+        "max_from_high_perc": "string?",
+        "max_from_low_perc": "string?",
+        "max_gamma": "string?",
+        "max_iv_perc": "string?",
+        "max_marketcap": "string?",
+        "max_multileg_volume_ratio": "string?",
+        "max_oi_change": "integer?",
+        "max_oi_change_perc": "string?",
+        "max_open_interest": "integer?",
+        "max_perc_change": "string?",
+        "max_premium": "string?",
+        "max_return_on_capital_perc": "string?",
+        "max_skew_perc": "string?",
+        "max_strike": "string?",
+        "max_sweep_volume_ratio": "string?",
+        "max_theta": "string?",
+        "max_ticker_30_d_avg_volume": "integer?",
+        "max_transactions": "integer?",
+        "max_underlying_price": "string?",
+        "max_vega": "string?",
+        "max_volume": "integer?",
+        "max_volume_oi_ratio": "string?",
+        "max_volume_ticker_vol_ratio": "string?",
+        "min_ask_perc": "string?",
+        "min_ask_side_perc_7_day": "string?",
+        "min_avg_price": "string?",
+        "min_bear_perc": "string?",
+        "min_bid_perc": "string?",
+        "min_bid_side_perc_7_day": "string?",
+        "min_bull_perc": "string?",
+        "min_close": "string?",
+        "min_contract_30_d_avg_volume": "integer?",
+        "min_daily_perc_change": "string?",
+        "min_days_of_oi_increases": "integer?",
+        "min_days_of_vol_greater_than_oi": "integer?",
+        "min_delta": "string?",
+        "min_diff": "string?",
+        "min_dte": "integer?",
+        "min_earnings_dte": "integer?",
+        "min_floor_volume": "integer?",
+        "min_floor_volume_ratio": "string?",
+        "min_from_high_perc": "string?",
+        "min_from_low_perc": "string?",
+        "min_gamma": "string?",
+        "min_iv_perc": "string?",
+        "min_marketcap": "string?",
+        "min_multileg_volume_ratio": "string?",
+        "min_oi_change": "integer?",
+        "min_oi_change_perc": "string?",
+        "min_open_interest": "integer?",
+        "min_perc_change": "string?",
+        "min_premium": "string?",
+        "min_return_on_capital_perc": "string?",
+        "min_skew_perc": "string?",
+        "min_strike": "string?",
+        "min_sweep_volume_ratio": "string?",
+        "min_theta": "string?",
+        "min_ticker_30_d_avg_volume": "integer?",
+        "min_transactions": "integer?",
+        "min_underlying_price": "string?",
+        "min_vega": "string?",
+        "min_volume": "integer?",
+        "min_volume_oi_ratio": "string?",
+        "min_volume_ticker_vol_ratio": "string?",
+        "order": "enum[screener_order_by]?",
+        "order_direction": "enum[order]?",
+        "page": "integer?",
+        "sectors[]": "array[enum[sector]]?",
+        "ticker_symbol": "string?",
+        "type": "enum[option_type]?",
+        "vol_greater_oi": "boolean?"
+      },
+      "param_defaults": {
+        "limit": 50,
+        "order_direction": "desc"
+      },
+      "param_constraints": {
+        "limit": {"min": 1, "max": 250},
+        "page": {"min": 0}
+      },
+      "rate_limit": {"rps": 1, "burst": 3},
+      "cache_ttl": 60,
+      "notes": "Purpose: Advanced contract screener for finding hottest chains. NOTE: Contracts with volume < 200 are excluded. Optional: Extensive min/max filters for greeks (delta/gamma/theta/vega), IV, volume, OI, premium, price changes, floor/sweep/multileg ratios, DTE, earnings proximity, 7-day side percentages, sectors, issue types. Supports order_by field selection and pagination (page starts at 0). Output: Full contract data with OHLC, volume breakdown, earnings info, sector. Use for finding unusual activity and screening for specific contract characteristics."
+    },
+    {
+      "dataset": "stock-atm-chains",
+      "class": "options_reference",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/atm-chains",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "expirations[]": "array[date]"
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 60,
+      "notes": "Purpose: Get at-the-money option chains for specific expirations. Required: ticker, expirations[] (array of ISO dates). Output: ATM contracts with OHLC, volume breakdown, OI, premium, earnings info, sector. Use for quick ATM straddle/strangle analysis and IV term structure."
+    },
+    {
+      "dataset": "stock-flow-per-expiry",
+      "class": "options_flow",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/flow-per-expiry",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string"
+      },
+      "rate_limit": {"rps": 10, "burst": 30},
+      "cache_ttl": 60,
+      "notes": "Purpose: Options flow aggregated by expiration date. Required: ticker. Output: Per-expiry breakdown of call/put volume, premium, trades (total and ask/bid side), plus OTM-specific metrics. Use for identifying which expirations are seeing the most activity and positioning."
+    },
+    {
+      "dataset": "stock-flow-per-strike",
+      "class": "options_flow",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/flow-per-strike",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "date": "date?"
+      },
+      "rate_limit": {"rps": 10, "burst": 30},
+      "cache_ttl": 60,
+      "notes": "Purpose: Options flow aggregated by strike price. Required: ticker. Optional: date. Output: Per-strike breakdown of call/put volume, premium, trades with ask/bid side split. Use for building strike-level flow heatmaps and identifying key strike levels."
+    },
+    {
+      "dataset": "stock-flow-per-strike-intraday",
+      "class": "options_flow",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/flow-per-strike-intraday",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "date": "date?",
+        "filter": "enum[flow_filter]?"
+      },
+      "param_defaults": {
+        "filter": "NetPremium"
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 60,
+      "notes": "Purpose: Intraday strike-level flow in 1-minute intervals. Required: ticker. Optional: date, filter (NetPremium/Volume/Trades - determines which strikes to return). Output: Minute-by-minute per-strike flow data (not aggregated across minutes). Use for real-time strike flow visualization and intraday positioning analysis."
+    },
+    {
+      "dataset": "stock-flow-recent",
+      "class": "options_flow",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/flow-recent",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "min_premium": "integer?",
+        "side": "enum[trade_side]?"
+      },
+      "param_defaults": {
+        "min_premium": 0,
+        "side": "ALL"
+      },
+      "param_constraints": {
+        "min_premium": {"min": 0}
+      },
+      "rate_limit": {"rps": 10, "burst": 30},
+      "cache_ttl": 30,
+      "notes": "Purpose: Latest options flow for a ticker. Required: ticker. Optional: min_premium (filter by minimum premium), side (ALL/ASK/BID/MID). Output: Recent flow data per expiry including call/put volume, premium, trades with OTM breakouts and ask/bid side splits. Use for real-time flow monitoring on individual names."
+    },
+    {
+      "dataset": "stock-greek-exposure",
+      "class": "options_greeks",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/greek-exposure",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "date": "date?",
+        "timeframe": "string?"
+      },
+      "param_defaults": {
+        "timeframe": "1Y"
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 300,
+      "notes": "Purpose: Market maker greek exposure (GEX, DEX, Vanna, Charm) based on open interest. Required: ticker. Optional: date, timeframe (1D/2D/1W/2W/1M/2M/3M/6M/1Y/2Y/YTD, default 1Y). Output: Time series of call/put exposure for gamma, delta, vanna, charm (greek * OI * 100 shares). Positive gamma = volatility suppression (MMs buy dips, sell rips); negative gamma = volatility amplification. Use for GEX analysis, identifying vol regimes, and understanding dealer positioning impact on price action."
+    },
+    {
+      "dataset": "stock-greek-exposure-by-expiry",
+      "class": "options_greeks",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/greek-exposure/expiry",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "date": "date?"
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 300,
+      "notes": "Purpose: Greek exposure breakdown by expiration date. Required: ticker. Optional: date (defaults to last trading day). Output: Per-expiry aggregation of gamma, delta, vanna, charm exposure across all contracts. Use for understanding GEX distribution across expiration cycles, identifying high-gamma expiries (e.g., monthly opex), and term structure analysis of dealer positioning."
+    },
+    {
+      "dataset": "stock-greek-exposure-by-strike",
+      "class": "options_greeks",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/greek-exposure/strike",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "date": "date?"
+      },
+      "rate_limit": {"rps": 2, "burst": 5},
+      "cache_ttl": 300,
+      "notes": "Purpose: Greek exposure breakdown by strike price. Required: ticker. Optional: date (defaults to last trading day). Output: Per-strike aggregation of gamma, delta, vanna, charm exposure across all contracts. Use for building GEX profiles, identifying key gamma strikes (support/resistance levels), finding charm walls, and understanding where dealer hedging flows concentrate."
+    },
+    {
+      "dataset": "stock-greek-exposure-by-strike-expiry",
+      "class": "options_greeks",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/greek-exposure/strike-expiry",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "expiry": "date",
+        "date": "date?"
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 300,
+      "notes": "Purpose: Greek exposure by strike for a specific expiration. Required: ticker, expiry (ISO date). Optional: date (defaults to last trading day). Output: Per-strike gamma, delta, vanna, charm exposure filtered to a single expiry. Use for detailed GEX analysis on specific expiration cycles (e.g., weekly opex, monthly), building strike-level heatmaps for target expiries."
+    },
+    {
+      "dataset": "stock-greek-flow",
+      "class": "options_flow",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/greek-flow",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "date": "date?"
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 60,
+      "notes": "Purpose: Intraday greek flow (delta & vega) broken down per minute. Required: ticker. Optional: date (defaults to last trading day). Output: Minute-by-minute directional and total delta/vega flow, net call/put premium and volume, OTM-specific flows, transaction counts. Use for real-time delta/vega flow monitoring, identifying intraday positioning shifts, and correlating greek flow with price action."
+    },
+    {
+      "dataset": "stock-greek-flow-by-expiry",
+      "class": "options_flow",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/greek-flow/{expiry}",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "expiry": "date",
+        "date": "date?"
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 60,
+      "notes": "Purpose: Intraday greek flow filtered to a specific expiration. Required: ticker, expiry (ISO date). Optional: date (defaults to last trading day). Output: Minute-by-minute delta/vega flow for contracts expiring on the specified date. Use for analyzing flow into specific expiration cycles intraday, tracking 0DTE or weekly expiry positioning in real-time."
+    },
+    {
+      "dataset": "stock-greeks",
+      "class": "options_greeks",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/greeks",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "expiry": "date",
+        "date": "date?"
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 300,
+      "notes": "Purpose: Full greeks for each strike on a single expiration. Required: ticker, expiry (ISO date). Optional: date (defaults to last trading day). Output: Per-strike greeks (delta, gamma, theta, vega, rho) for both calls and puts on the specified expiry. Use for options pricing, building volatility surfaces, and detailed strike-level greek analysis."
+    },
+    {
+      "dataset": "stock-historical-risk-reversal-skew",
+      "class": "options_volatility",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/historical-risk-reversal-skew",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "delta": "string",
+        "expiry": "date",
+        "date": "date?",
+        "timeframe": "string?"
+      },
+      "param_defaults": {
+        "timeframe": "1Y"
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 300,
+      "notes": "Purpose: Historical risk reversal skew (put IV - call IV) at specific delta levels. Required: ticker, delta (typically 0.25 or 0.10 for 25-delta or 10-delta), expiry (ISO date). Optional: date, timeframe (1D/1W/1M/1Y/YTD, default 1Y). Output: Time series of risk reversal values showing put/call IV differential. Positive = puts more expensive (bearish skew); negative = calls more expensive (bullish skew). Use for skew analysis, sentiment indicators, and identifying relative put/call richness over time."
+    },
+    {
+      "dataset": "stock-interpolated-iv",
+      "class": "options_volatility",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/interpolated-iv",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "date": "date?"
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 300,
+      "notes": "Purpose: Interpolated implied volatility for standardized tenors. Required: ticker. Optional: date (defaults to last trading day). Output: IV values for standard time periods (e.g., 7d, 14d, 30d, 60d, 90d, 180d, 1Y). If no exact expiration exists, values are linearly interpolated from the 2 closest expirations. Use for IV term structure analysis, comparing vol across tickers with different expiration schedules, and building normalized vol surfaces."
+    },
+    {
+      "dataset": "stock-iv-rank",
+      "class": "options_volatility",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/iv-rank",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "date": "date?",
+        "timespan": "string?"
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 300,
+      "notes": "Purpose: IV rank measuring current IV relative to historical range. Required: ticker. Optional: date, timespan (1w/1m/3m/6m/1y or ISO date). Output: IV rank as percentile (0-100) indicating where current IV sits vs historical high/low. Rank of 80 = current IV is higher than 80% of historical values. Use for identifying vol extremes, timing premium selling strategies (high rank = rich vol), and comparing relative vol levels across tickers."
+    },
+    {
+      "dataset": "stock-max-pain",
+      "class": "options_analytics",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/max-pain",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "date": "date?"
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 300,
+      "notes": "Purpose: Max pain strike prices for all expirations. Required: ticker. Optional: date (defaults to last trading day). Output: Max pain values for each expiry over the last 120 days. Max pain = strike price at which option holders (both calls and puts) would experience maximum loss, or equivalently where option writers profit most. Use for identifying potential price magnets near expiration, understanding dealer hedging targets, and opex positioning analysis."
+    },
+    {
+      "dataset": "stock-nope",
+      "class": "nope_sentiment",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/nope",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "date": "date?"
+      },
+      "rate_limit": {"rps": 5, "burst": 10},
+      "cache_ttl": 120,
+      "notes": "Purpose: NOPE (Net Options Pricing Effect) broken down per minute. Required: ticker. Optional: date (defaults to last trading day). Output: Minute-by-minute NOPE values representing estimated shares to be hedged. Formula: (Call Delta - Put Delta) / Stock Volume. Assumes MMs take short side of trades and dynamically hedge. Positive NOPE = expected buying pressure from hedging; negative = selling pressure. 'NOPE fill' variant uses delta at transaction time. Use for intraday directional signals, understanding options-driven price action, and correlating hedging flows with stock movements."
+    },
+    {
+      "dataset": "stock-oi-change",
+      "class": "options_flow",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/oi-change",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "date": "date?",
+        "limit": "integer?",
+        "order": "enum[order]?",
+        "page": "integer?"
+      },
+      "param_defaults": {
+        "order": "desc"
+      },
+      "param_constraints": {
+        "limit": {"min": 1},
+        "page": {"min": 0}
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 300,
+      "notes": "Purpose: Contracts with largest OI changes for a specific ticker. Required: ticker. Optional: date, limit, order (desc/asc), page (starts at 0). Output: Per-contract OI change data sorted by absolute change. Includes current/previous OI, change %, volume breakdown. Use for detecting new position openings or closings on specific names, identifying which strikes are accumulating/unwinding interest."
+    },
+    {
+      "dataset": "stock-oi-per-expiry",
+      "class": "options_reference",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/oi-per-expiry",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "date": "date?"
+      },
+      "rate_limit": {"rps": 10, "burst": 30},
+      "cache_ttl": 300,
+      "notes": "Purpose: Open interest aggregated by expiration date. Required: ticker. Optional: date (defaults to last trading day). Output: Per-expiry total call OI and put OI. Use for understanding OI distribution across expiration cycles, identifying high-OI expiries, and put/call OI ratios by tenor."
+    },
+    {
+      "dataset": "stock-oi-per-strike",
+      "class": "options_reference",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/oi-per-strike",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "date": "date?"
+      },
+      "rate_limit": {"rps": 10, "burst": 30},
+      "cache_ttl": 300,
+      "notes": "Purpose: Open interest aggregated by strike price. Required: ticker. Optional: date (defaults to last trading day). Output: Per-strike total call OI and put OI. Use for building OI profiles, identifying high-concentration strikes (potential support/resistance), and visualizing put/call OI walls."
+    },
+    {
+      "dataset": "stock-option-chains",
+      "class": "options_reference",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/option-chains",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "date": "date?"
+      },
+      "rate_limit": {"rps": 10, "burst": 30},
+      "cache_ttl": 300,
+      "notes": "Purpose: List all option symbols for a ticker on a given day. Required: ticker. Optional: date (defaults to last trading day). Output: Array of option symbols in OCC format (e.g., AAPL230120C00150000). Parse with regex: ^(?<symbol>[\\w]*)(?<expiry>(\\d{2})(\\d{2})(\\d{2}))(?<type>[PC])(?<strike>\\d{8})$ - note strike must be divided by 1000. Use for enumerating available contracts, building option chain interfaces, and discovering tradeable strikes/expiries."
+    },
+    {
+      "dataset": "stock-option-price-levels",
+      "class": "options_flow",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/option/stock-price-levels",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "date": "date?"
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 300,
+      "notes": "Purpose: Call and put volume aggregated by underlying stock price level. Required: ticker. Optional: date (defaults to last trading day). Output: Volume distribution across stock price levels showing where options traded relative to spot. Use for visualizing price-level activity charts, understanding at which stock prices options volume concentrated, and correlating options activity with price action."
+    },
+    {
+      "dataset": "stock-volume-oi-per-expiry",
+      "class": "options_reference",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/option/volume-oi-expiry",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "date": "date?"
+      },
+      "rate_limit": {"rps": 10, "burst": 30},
+      "cache_ttl": 300,
+      "notes": "Purpose: Combined volume and OI per expiration. Required: ticker. Optional: date (defaults to last trading day). Output: Per-expiry totals for both volume and open interest. Use for quick expiry analysis, identifying high-activity expiration cycles, and comparing volume vs OI ratios across tenors."
+    },
+    {
+      "dataset": "stock-options-volume",
+      "class": "options_flow",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/options-volume",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "limit": "integer?"
+      },
+      "param_defaults": {
+        "limit": 1
+      },
+      "param_constraints": {
+        "limit": {"min": 1, "max": 500}
+      },
+      "rate_limit": {"rps": 10, "burst": 30},
+      "cache_ttl": 60,
+      "notes": "Purpose: Daily options volume and premium for a specific ticker. Required: ticker. Optional: limit (1-500, default 1 for latest day). Output: Call/put volume and premium totals per trading day. Use for single-name options activity tracking, building ticker-specific volume charts, and comparing activity levels across days."
+    },
+    {
+      "dataset": "stock-spot-exposures-expiry-strike",
+      "class": "options_greeks",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/spot-exposures/expiry-strike",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "expirations[]": "array[date]",
+        "date": "date?",
+        "limit": "integer?",
+        "min_dte": "integer?",
+        "max_dte": "integer?",
+        "min_strike": "integer?",
+        "max_strike": "integer?",
+        "page": "integer?"
+      },
+      "param_defaults": {
+        "limit": 50
+      },
+      "param_constraints": {
+        "limit": {"min": 1, "max": 500},
+        "min_dte": {"min": 0},
+        "max_dte": {"min": 0},
+        "min_strike": {"min": 0},
+        "max_strike": {"min": 0},
+        "page": {"min": 0}
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 60,
+      "notes": "Purpose: Real-time spot GEX exposures by strike and expiry. Required: ticker, expirations[] (array of ISO dates). Optional: date, limit (1-500), min/max_dte, min/max_strike, page. Data available since 2025-01-16. Output: Current GEX exposure per strike for specified expirations, calculated from OI or volume. Use for live GEX profiles, identifying gamma walls, and real-time dealer positioning analysis."
+    },
+    {
+      "dataset": "stock-spot-exposures-strike",
+      "class": "options_greeks",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/spot-exposures/strike",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "date": "date?",
+        "limit": "integer?",
+        "min_strike": "integer?",
+        "max_strike": "integer?",
+        "page": "integer?"
+      },
+      "param_defaults": {
+        "limit": 50
+      },
+      "param_constraints": {
+        "limit": {"min": 1, "max": 500},
+        "min_strike": {"min": 0},
+        "max_strike": {"min": 0},
+        "page": {"min": 0}
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 60,
+      "notes": "Purpose: Spot GEX ($ value of greek exposure per 1% move) aggregated by strike across all expiries. Required: ticker. Optional: date, limit (1-500), min/max_strike, page. Output: Per-strike spot exposure for gamma, delta, vanna, charm from OI or directional volume. Includes call/put ask/bid breakdowns for directional analysis. Positive GEX = vol suppression (MMs buy dips, sell rips); negative = vol amplification. Use for building GEX profiles, finding gamma walls and support/resistance levels, understanding dealer hedging impact."
+    },
+    {
+      "dataset": "stock-volatility-realized",
+      "class": "options_volatility",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/volatility/realized",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "date": "date?",
+        "timeframe": "string?"
+      },
+      "param_defaults": {
+        "timeframe": "1Y"
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 300,
+      "notes": "Purpose: Compare implied vs realized volatility over time. Required: ticker. Optional: date, timeframe (1D/1W/1M/1Y/YTD, default 1Y). Output: Time series of 30-day forward IV and 30-day historical/realized vol. RV is shifted 30 days back to compare past IV predictions vs actual outcomes. IV > RV = overpriced vol (good for selling); IV < RV = underpriced vol (good for buying). Use for vol trading signals, identifying systematic IV mispricings, and backtesting vol strategies."
+    },
+    {
+      "dataset": "stock-volatility-stats",
+      "class": "options_volatility",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/volatility/stats",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "date": "date?"
+      },
+      "rate_limit": {"rps": 10, "burst": 30},
+      "cache_ttl": 300,
+      "notes": "Purpose: Comprehensive volatility statistics snapshot. Required: ticker. Optional: date (defaults to last trading day). Output: Current IV and RV values plus 1-year high/low for both metrics. Use for quick vol assessment, identifying vol extremes relative to historical range, and screening for vol trading opportunities without needing full time series."
+    },
+    {
+      "dataset": "stock-volatility-term-structure",
+      "class": "options_volatility",
+      "discoverable": true,
+      "url": "/api/stock/{ticker}/volatility/term-structure",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "date": "date?"
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 300,
+      "notes": "Purpose: ATM implied volatility term structure across all expirations. Required: ticker. Optional: date (defaults to last trading day). Output: Average of ATM call and put IV for each expiry date. Use for visualizing vol term structure (contango vs backwardation), identifying calendar spread opportunities, comparing near-term vs long-term vol expectations, and detecting event-driven vol spikes at specific expiries."
+    },
+    {
+      "dataset": "market-tide",
+      "class": "market_sentiment",
+      "discoverable": true,
+      "url": "/api/market/market-tide",
+      "method": "GET",
+      "identifier_param": null,
+      "params_schema": {
+        "date": "date?",
+        "interval_5m": "boolean?",
+        "otm_only": "boolean?"
+      },
+      "param_defaults": {
+        "interval_5m": true,
+        "otm_only": false
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 60,
+      "notes": "Purpose: Proprietary market-wide options sentiment indicator based on net premium flow. Optional: date (defaults to last market day), interval_5m (true=5min, false=1min intervals), otm_only (filter to OTM only). Output: Time series of net call/put premium (ask-side minus bid-side transactions, mid excluded). Bullish = call premium rising or put premium falling; Bearish = opposite. Data since 2022-09-28. Use for intraday market sentiment, timing entries/exits, and identifying institutional directional bets across the entire market."
+    },
+    {
+      "dataset": "sector-tide",
+      "class": "market_sentiment",
+      "discoverable": true,
+      "url": "/api/market/{sector}/sector-tide",
+      "method": "GET",
+      "identifier_param": "sector",
+      "params_schema": {
+        "sector": "enum[sector]",
+        "date": "date?"
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 60,
+      "notes": "Purpose: Sector-specific options sentiment indicator (like Market Tide but filtered to one sector). Required: sector (Basic Materials, Communication Services, Consumer Cyclical, Consumer Defensive, Energy, Financial Services, Healthcare, Industrials, Real Estate, Technology, Utilities). Optional: date. Output: Time series of net call/put premium for companies in the specified sector only. Use for sector rotation signals, comparing sentiment across sectors, and identifying sector-specific institutional flows."
+    },
+    {
+      "dataset": "etf-tide",
+      "class": "market_sentiment",
+      "discoverable": true,
+      "url": "/api/market/{ticker}/etf-tide",
+      "method": "GET",
+      "identifier_param": "ticker",
+      "params_schema": {
+        "ticker": "string",
+        "date": "date?"
+      },
+      "rate_limit": {"rps": 5, "burst": 15},
+      "cache_ttl": 60,
+      "notes": "Purpose: ETF-specific options sentiment indicator based on options activity of the ETF's underlying holdings. Required: ticker (ETF symbol, can be comma-separated). Optional: date. Output: Time series of net call/put premium aggregated across all holdings within the ETF. Use for thematic/sector ETF sentiment, comparing flow across different ETF strategies, and understanding institutional positioning in specific market segments."
+    }
+  ]
+}

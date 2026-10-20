@@ -1,0 +1,47 @@
+{
+  "label": "2_cylinder_macro",
+  "row_count": 100000,
+  "surface_name": "cylinder",
+  "genus": 0,
+  "orientable": true,
+  "euler_characteristic": 0,
+  "classification_mode": "validated_2d_faces",
+  "surface_confidence": 1.0,
+  "betti_0": 1,
+  "betti_1": 53941,
+  "vertex_count": 3720,
+  "edge_count": 57660,
+  "face_count": 3596,
+  "exported_faces": 3596,
+  "face_coverage": 1.0,
+  "occupancy": 1.0,
+  "boundary_edge_count": 248,
+  "boundary_loop_count": 2,
+  "face_euler_characteristic": 0,
+  "face_genus_estimate": 0.0,
+  "axes": [
+    {
+      "column": "country",
+      "type": "categorical",
+      "size": 30,
+      "wraps": false,
+      "wrap_orientation": 0,
+      "ordered": false
+    },
+    {
+      "column": "date",
+      "type": "temporal",
+      "size": 124,
+      "wraps": true,
+      "wrap_orientation": 1,
+      "ordered": true
+    }
+  ],
+  "field_columns": [
+    "gdp_growth",
+    "inflation",
+    "policy_rate"
+  ],
+  "primary_field": "gdp_growth",
+  "build_ms": 3934.3
+}

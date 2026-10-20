@@ -1,0 +1,559 @@
+/**
+ * Portfolio Guide Panel - Slide-in documentation panel from the right
+ * Non-blocking - allows interaction with portfolio pages while reading
+ * 
+ * Covers: Portfolio management, lot tracking, broker integration, trading, analytics
+ * Institutional Finance Design: High-density, professional typography, #0051CC accent
+ */
+
+import React, { useState, useEffect } from 'react';
+import { 
+  X, Briefcase, PieChart, TrendingUp, DollarSign, History, 
+  FileSpreadsheet, Link, Settings, Calculator, BarChart3, 
+  ArrowUpDown, Clock, Shield, Database, Activity, RefreshCw,
+  Plus, Minus, List, AlertTriangle, Info, Lock, Globe, CheckCircle2
+} from 'lucide-react';
+
+interface PortfolioGuidePanelProps {
+  isOpen: boolean;
+  onClose: () => void;
+  /** Which page context we're on - affects which content is highlighted */
+  context?: 'list' | 'detail';
+  onOpenIBKRModal?: () => void;
+}
+
+type TabId = 'overview' | 'create' | 'holdings' | 'trading' | 'performance' | 'ibkr';
+
+const ACCENT_COLOR = '#0051CC';
+
+export const PortfolioGuidePanel: React.FC<PortfolioGuidePanelProps> = ({
+  isOpen,
+  onClose,
+  context = 'list',
+  onOpenIBKRModal,
+}) => {
+  const [activeTab, setActiveTab] = useState<TabId>(context === 'detail' ? 'holdings' : 'overview');
+  const [visible, setVisible] = useState(false);
+
+  // Animate in
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => setVisible(true), 10);
+    } else {
+      setVisible(false);
+    }
+  }, [isOpen]);
+
+  // Reset to appropriate tab when context changes
+  useEffect(() => {
+    if (isOpen) {
+      setActiveTab(context === 'detail' ? 'holdings' : 'overview');
+    }
+  }, [context, isOpen]);
+
+  if (!isOpen) return null;
+
+  const tabs: { id: TabId; label: string; icon: React.ReactNode }[] = [
+    { id: 'overview', label: 'SYSTEM', icon: <Briefcase size={11} /> },
+    { id: 'create', label: 'ONBOARDING', icon: <Plus size={11} /> },
+    { id: 'holdings', label: 'POSITIONS', icon: <List size={11} /> },
+    { id: 'trading', label: 'EXECUTION', icon: <ArrowUpDown size={11} /> },
+    { id: 'performance', label: 'ANALYTICS', icon: <BarChart3 size={11} /> },
+    { id: 'ibkr', label: 'BROKERAGE', icon: <Link size={11} /> },
+  ];
+
+  return (
+    <>
+      {/* Non-blocking side panel */}
+      <div
+        className={`fixed top-0 right-0 h-full w-full max-w-xl bg-white shadow-2xl flex flex-col z-50 transition-transform duration-300 ease-out ${visible ? 'translate-x-0' : 'translate-x-full'}`}
+        style={{ borderLeft: '1px solid #e5e7eb' }}
+      >
+        {/* Header */}
+        <div className="flex-shrink-0 px-6 py-4 border-b border-gray-200 bg-gray-50">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Portfolio Guide</h2>
+              <p className="text-sm text-gray-500 mt-0.5">Portfolio management and trading workflows</p>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          {/* Tabs */}
+          <div className="border-b border-gray-200 mt-4">
+            <div className="flex gap-0 overflow-x-auto no-scrollbar">
+              {tabs.map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`px-4 py-2.5 text-xs font-medium transition-all whitespace-nowrap border-b-2 ${
+                    activeTab === tab.id
+                      ? 'border-gray-900 text-gray-900'
+                      : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto">
+          {/* Overview Tab */}
+          {activeTab === 'overview' && (
+            <div className="p-6 space-y-6">
+              <div className="pb-4 border-b border-gray-200">
+                <h3 className="text-base font-semibold text-gray-900 mb-2">Portfolio Overview</h3>
+                <p className="text-sm text-gray-600">
+                  Multi-tenant investment tracking with lot-level tax accounting, real-time valuation, and custodial integration.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <div className="text-xs font-semibold text-gray-700">CORE CAPABILITIES</div>
+
+                <div className="space-y-3">
+                  <div className="border-l-4 border-[#0051cc] pl-4 py-1">
+                    <div className="text-xs font-semibold text-gray-700 mb-1.5">LOT-LEVEL LEDGER</div>
+                    <p className="text-sm text-gray-700">
+                      Maintains distinct purchase lots with unique UUIDs. Tracks cost basis, acquisition timestamps, and wash sale status.
+                    </p>
+                  </div>
+
+                  <div className="border-l-4 border-[#0051cc] pl-4 py-1">
+                    <div className="text-xs font-semibold text-gray-700 mb-1.5">TIME-WEIGHTED RETURNS</div>
+                    <p className="text-sm text-gray-700">
+                      Performance calculation using TWR methodology to isolate investment skill from external cash flows.
+                    </p>
+                  </div>
+
+                  <div className="border-l-4 border-[#0051cc] pl-4 py-1">
+                    <div className="text-xs font-semibold text-gray-700 mb-1.5">CUSTODIAL SYNC</div>
+                    <p className="text-sm text-gray-700">
+                      Automated reconciliation with Interactive Brokers. Daily batch processing and ad-hoc syncs supported.
+                    </p>
+                  </div>
+
+                  <div className="border-l-4 border-[#0051cc] pl-4 py-1">
+                    <div className="text-xs font-semibold text-gray-700 mb-1.5">DATA GOVERNANCE</div>
+                    <p className="text-sm text-gray-700">
+                      Portfolios scoped to organization ID via RLS. Data encrypted at rest (AES-256) and in transit (TLS 1.3).
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Create Tab */}
+          {activeTab === 'create' && (
+            <div className="p-6 space-y-6">
+              <div>
+                <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider mb-4 flex items-center gap-2">
+                  <Settings size={12} style={{ color: ACCENT_COLOR }} />
+                  Ingestion Protocols
+                </h3>
+
+                <div className="space-y-4">
+                  {/* Manual */}
+                  <div className="border border-gray-200 bg-white rounded-sm hover:border-[#0051cc] transition-colors">
+                    <div className="px-3 py-2 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                      <span className="text-xs font-bold text-gray-700 uppercase">Method A: Manual Entry</span>
+                      <span className="text-xs font-mono text-gray-400">UI/UX</span>
+                    </div>
+                    <div className="p-3.5">
+                      <p className="text-sm text-gray-700 mb-3">
+                        Direct ledger entry for ad-hoc portfolios or testing.
+                      </p>
+                      <div className="space-y-2.5">
+                        <div className="flex items-start gap-2">
+                          <div className="w-4 h-4 rounded-full bg-blue-50 text-[#0051cc] border border-blue-100 flex items-center justify-center text-xs font-mono mt-0.5">1</div>
+                          <p className="text-sm text-gray-700">Click <span className="font-bold">New Portfolio</span> button in the header.</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <div className="w-4 h-4 rounded-full bg-blue-50 text-[#0051cc] border border-blue-100 flex items-center justify-center text-xs font-mono mt-0.5">2</div>
+                          <p className="text-sm text-gray-700">Name your portfolio (e.g., "Alpha Fund I").</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <div className="w-4 h-4 rounded-full bg-blue-50 text-[#0051cc] border border-blue-100 flex items-center justify-center text-xs font-mono mt-0.5">3</div>
+                          <p className="text-sm text-gray-700">Add initial positions manually. Input Ticker, Qty, Price.</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <div className="w-4 h-4 rounded-full bg-blue-50 text-[#0051cc] border border-blue-100 flex items-center justify-center text-xs font-mono mt-0.5">4</div>
+                          <p className="text-sm text-gray-700">System automatically creates initial lots and cash offsets.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Import */}
+                  <div className="border border-gray-200 bg-white rounded-sm hover:border-[#0051cc] transition-colors">
+                    <div className="px-3 py-2 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                      <span className="text-xs font-bold text-gray-700 uppercase">Method B: Batch Import</span>
+                      <span className="text-xs font-mono text-gray-400">CSV/XLSX</span>
+                    </div>
+                    <div className="p-3.5">
+                      <p className="text-sm text-gray-700 mb-3">
+                        Bulk ingestion for historical data migration via <span className="font-bold">Connect Broker {'>'} Import CSV</span>.
+                      </p>
+                      <div className="bg-gray-100 border border-gray-200 p-2.5 rounded-sm mb-2.5">
+                        <code className="text-sm text-gray-700 block">
+                          Symbol,Quantity,CostBasis,PurchaseDate<br/>
+                          AAPL,150,142.50,2023-01-15<br/>
+                          MSFT,75,280.00,2023-02-20
+                        </code>
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        *Date format: ISO-8601 (YYYY-MM-DD). CostBasis is per-share.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Broker */}
+                  <div className="border border-gray-200 bg-white rounded-sm hover:border-[#0051cc] transition-colors">
+                    <div className="px-3 py-2 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                      <span className="text-xs font-bold text-gray-700 uppercase">Method C: Custodial Sync</span>
+                      <span className="text-xs font-mono text-gray-400">API</span>
+                    </div>
+                    <div className="p-3.5 flex gap-3">
+                      <div className="flex-1">
+                        <p className="text-sm text-gray-700 mb-2.5">
+                          Continuous synchronization via Interactive Brokers Flex Query. Use <span className="font-bold">Connect Broker {'>'} Interactive Brokers</span>.
+                        </p>
+                        <div className="flex gap-2">
+                          <span className="px-1.5 py-0.5 bg-blue-50 text-[#0051cc] border border-blue-100 text-xs rounded font-mono">FlexToken</span>
+                          <span className="px-1.5 py-0.5 bg-blue-50 text-[#0051cc] border border-blue-100 text-xs rounded font-mono">QueryID</span>
+                        </div>
+                      </div>
+                      <div className="text-xs text-right text-gray-400 font-mono">
+                        Daily<br/>12:00 EST<br/>17:30 EST
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Holdings Tab */}
+          {activeTab === 'holdings' && (
+            <div className="p-6 space-y-6">
+              <div>
+                <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider mb-4 flex items-center gap-2">
+                  <List size={12} style={{ color: ACCENT_COLOR }} />
+                  Position Blotter
+                </h3>
+                
+                <div className="bg-white border border-gray-200 rounded-sm overflow-hidden">
+                  <table className="w-full text-xs">
+                    <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 font-mono">
+                      <tr>
+                        <th className="px-3 py-2 text-left font-normal">METRIC</th>
+                        <th className="px-3 py-2 text-left font-normal">CALCULATION LOGIC</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      <tr>
+                        <td className="px-3 py-2 font-bold text-gray-900">Position (Net)</td>
+                        <td className="px-3 py-2 text-gray-600 font-mono">Σ(Lot_Qty)</td>
+                      </tr>
+                      <tr>
+                        <td className="px-3 py-2 font-bold text-gray-900">Weighted Avg Price</td>
+                        <td className="px-3 py-2 text-gray-600 font-mono">Σ(Lot_Qty * Lot_Price) / Total_Qty</td>
+                      </tr>
+                      <tr>
+                        <td className="px-3 py-2 font-bold text-gray-900">Market Value (MV)</td>
+                        <td className="px-3 py-2 text-gray-600 font-mono">Net_Qty * Market_Price_Realtime</td>
+                      </tr>
+                      <tr>
+                        <td className="px-3 py-2 font-bold text-gray-900">Unrealized P&L</td>
+                        <td className="px-3 py-2 text-gray-600 font-mono">MV - Total_Cost_Basis</td>
+                      </tr>
+                      <tr>
+                        <td className="px-3 py-2 font-bold text-gray-900">Portfolio Weight</td>
+                        <td className="px-3 py-2 text-gray-600 font-mono">Position_MV / Total_Portfolio_NAV</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Tax Lot Detail</h4>
+                <div className="bg-white border border-gray-200 rounded-sm p-3.5">
+                  <p className="text-sm text-gray-700 mb-3.5 leading-relaxed">
+                    Expanding a position row reveals the underlying tax lots. Each lot is an immutable record of a purchase execution.
+                  </p>
+                  <div className="flex gap-2.5 font-mono text-xs">
+                    <div className="flex-1 bg-blue-50 p-2.5 border border-blue-100 rounded-sm">
+                      <span className="block text-[#0051cc] mb-1">LOT ID</span>
+                      <span className="text-gray-900">UUID-v4</span>
+                    </div>
+                    <div className="flex-1 bg-blue-50 p-2.5 border border-blue-100 rounded-sm">
+                      <span className="block text-[#0051cc] mb-1">ACQUIRED</span>
+                      <span className="text-gray-900">ISO-8601</span>
+                    </div>
+                    <div className="flex-1 bg-blue-50 p-2.5 border border-blue-100 rounded-sm">
+                      <span className="block text-[#0051cc] mb-1">BASIS/SH</span>
+                      <span className="text-gray-900">FLOAT(4)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Instrument Metadata</h4>
+                <div className="bg-white border border-gray-200 rounded-sm p-3.5">
+                  <div className="flex flex-wrap gap-2">
+                    {['ISIN', 'CUSIP', 'FIGI', 'SEDOL', 'Exchange', 'Currency', 'Strike', 'Expiry', 'Multiplier'].map(tag => (
+                      <span key={tag} className="px-1.5 py-0.5 bg-blue-50 text-[#0051cc] text-xs font-mono rounded border border-blue-100">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Trading Tab */}
+          {activeTab === 'trading' && (
+            <div className="p-6 space-y-6">
+              <div>
+                <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider mb-4 flex items-center gap-2">
+                  <ArrowUpDown size={12} style={{ color: ACCENT_COLOR }} />
+                  Order Execution
+                </h3>
+
+                <div className="space-y-4">
+                  {/* Buy */}
+                  <div className="border border-gray-200 bg-white rounded-sm p-3.5 hover:border-[#0051cc] transition-colors">
+                    <div className="flex gap-3 mb-3.5">
+                      <div className="w-6 h-6 bg-[#0051cc] text-white flex items-center justify-center rounded-sm shrink-0 text-xs font-bold">B</div>
+                      <div>
+                        <h4 className="text-sm font-bold text-gray-900 uppercase">Buy Order</h4>
+                        <p className="text-sm text-gray-700 mt-1.5">Initiates long position. Creates new tax lot.</p>
+                      </div>
+                    </div>
+                    <div className="bg-blue-50 p-2.5 rounded-sm border border-blue-100 text-sm text-gray-700 space-y-1.5 font-mono">
+                      <div className="flex justify-between">
+                        <span>Step 1:</span>
+                        <span>Click "Buy" in header</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Step 2:</span>
+                        <span>Enter Ticker, Qty, Price</span>
+                      </div>
+                      <div className="flex justify-between border-t border-blue-200 pt-1.5 mt-1.5 font-bold text-gray-900">
+                        <span>Result:</span>
+                        <span>Debit Cash &rarr; Credit Asset</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Sell */}
+                  <div className="border border-gray-200 bg-white rounded-sm p-3.5 hover:border-[#0051cc] transition-colors">
+                    <div className="flex gap-3 mb-3.5">
+                      <div className="w-6 h-6 bg-white border-2 border-[#0051cc] text-[#0051cc] flex items-center justify-center rounded-sm shrink-0 text-xs font-bold">S</div>
+                      <div>
+                        <h4 className="text-sm font-bold text-gray-900 uppercase">Sell Order</h4>
+                        <p className="text-sm text-gray-700 mt-1.5">Liquidates position via FIFO.</p>
+                      </div>
+                    </div>
+                    <div className="bg-blue-50 p-2.5 rounded-sm border border-blue-100 text-sm text-gray-700 space-y-1.5 font-mono">
+                      <div className="flex justify-between">
+                        <span>Step 1:</span>
+                        <span>Click "Sell" on position</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Step 2:</span>
+                        <span>Confirm Qty and Price</span>
+                      </div>
+                      <div className="flex justify-between border-t border-blue-200 pt-1.5 mt-1.5 font-bold text-gray-900">
+                        <span>Result:</span>
+                        <span>Credit Cash &rarr; Realized P&L</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Cash */}
+                  <div className="border border-gray-200 bg-white rounded-sm p-3.5 hover:border-[#0051cc] transition-colors">
+                    <div className="flex gap-3 mb-3.5">
+                      <div className="w-6 h-6 bg-blue-50 border border-blue-100 text-[#0051cc] flex items-center justify-center rounded-sm shrink-0 text-xs font-bold">$</div>
+                      <div>
+                        <h4 className="text-sm font-bold text-gray-900 uppercase">Cash Journal</h4>
+                        <p className="text-sm text-gray-700 mt-1.5">Manual adjustment of settlement balance.</p>
+                      </div>
+                    </div>
+                    <div className="bg-blue-50 p-2.5 rounded-sm border border-blue-100 text-sm text-gray-700 font-mono">
+                      Use "Cash" button to Deposit (Add) or Reconcile (Set) balance.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 pt-5">
+                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Transaction Ledger Schema</h4>
+                <div className="bg-white border border-gray-200 rounded-sm overflow-hidden">
+                  <table className="w-full text-xs">
+                    <tr className="bg-gray-50 border-b border-gray-100 font-mono text-gray-500">
+                      <th className="p-2 text-left font-normal">FIELD</th>
+                      <th className="p-2 text-left font-normal">TYPE</th>
+                      <th className="p-2 text-left font-normal">DESC</th>
+                    </tr>
+                    <tr className="border-b border-gray-100">
+                      <td className="p-2 font-mono text-gray-900">txn_id</td>
+                      <td className="p-2 text-gray-500 font-mono">UUID</td>
+                      <td className="p-2 text-gray-500">Primary Key</td>
+                    </tr>
+                    <tr className="border-b border-gray-100">
+                      <td className="p-2 font-mono text-gray-900">side</td>
+                      <td className="p-2 text-gray-500 font-mono">ENUM</td>
+                      <td className="p-2 text-gray-500">BUY | SELL</td>
+                    </tr>
+                    <tr className="border-b border-gray-100">
+                      <td className="p-2 font-mono text-gray-900">basis_cost</td>
+                      <td className="p-2 text-gray-500 font-mono">DECIMAL</td>
+                      <td className="p-2 text-gray-500">Total Cost</td>
+                    </tr>
+                    <tr>
+                      <td className="p-2 font-mono text-gray-900">realized_gl</td>
+                      <td className="p-2 text-gray-500 font-mono">DECIMAL</td>
+                      <td className="p-2 text-gray-500">Gain/Loss (Sell Only)</td>
+                    </tr>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Performance Tab */}
+          {activeTab === 'performance' && (
+            <div className="p-6 space-y-6">
+              <div>
+                <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <BarChart3 size={12} style={{ color: ACCENT_COLOR }} />
+                  Analytics Engine
+                </h3>
+                <p className="text-sm text-gray-600 leading-relaxed text-justify">
+                  Performance attribution is computed using daily Time-Weighted Return (TWR) linking. This method geometrically links sub-period returns to eliminate the distorting effects of external cash flows.
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <div className="border border-gray-200 bg-white rounded-sm p-3.5 hover:bg-blue-50 hover:border-[#0051cc] transition-colors">
+                  <div className="flex justify-between items-center mb-1.5">
+                    <span className="text-sm font-bold text-gray-900">Snapshot Engine</span>
+                    <Clock size={12} className="text-gray-400" />
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Cron job captures portfolio state (NAV, Holdings, Prices) at <span className="font-mono text-[#0051cc] font-bold">16:00 EST</span> daily. Used for historical charting and volatility analysis.
+                  </p>
+                </div>
+
+                <div className="border border-gray-200 bg-white rounded-sm p-3.5 hover:bg-blue-50 hover:border-[#0051cc] transition-colors">
+                  <div className="flex justify-between items-center mb-1.5">
+                    <span className="text-sm font-bold text-gray-900">Mark-to-Market</span>
+                    <RefreshCw size={12} className="text-gray-400" />
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Intraday valuation uses 15-minute delayed feeds via FMP institutional endpoints. Positions marked at Last Sale price.
+                  </p>
+                </div>
+
+                <div className="border border-gray-200 bg-white rounded-sm p-3.5 hover:bg-blue-50 hover:border-[#0051cc] transition-colors">
+                  <div className="flex justify-between items-center mb-1.5">
+                    <span className="text-sm font-bold text-gray-900">Factor Decomposition</span>
+                    <PieChart size={12} className="text-gray-400" />
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Exposures aggregated by Sector (GICS), Industry, and Asset Class based on security metadata.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* IBKR Tab */}
+          {activeTab === 'ibkr' && (
+            <div className="p-6 space-y-6">
+              <div>
+                <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider mb-4 flex items-center gap-2">
+                  <Link size={12} style={{ color: ACCENT_COLOR }} />
+                  Custodial Connection
+                </h3>
+                <div className="bg-[#1a1d21] text-gray-300 p-4 rounded-sm shadow-sm border border-gray-800 font-mono text-xs">
+                  <p className="text-gray-500 mb-2.5"># CONNECTION CONFIGURATION</p>
+                  <div className="grid grid-cols-[1fr_2fr] gap-y-1.5">
+                    <span>PROTOCOL:</span><span className="text-white">Flex Query Service (HTTPS)</span>
+                    <span>VERSION:</span><span className="text-white">v3</span>
+                    <span>MODELS:</span><span className="text-white">Positions, Trades, Cash</span>
+                    <span>FORMAT:</span><span className="text-white">XML</span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Implementation Workflow</h4>
+                <ol className="space-y-5 border-l-2 border-[#0051cc] pl-5 ml-1 relative">
+                  <li className="relative">
+                    <div className="absolute -left-[27px] top-0.5 w-4 h-4 rounded-full bg-blue-50 border-2 border-[#0051cc]"></div>
+                    <h5 className="text-sm font-bold text-gray-900">1. Generate Flex Token</h5>
+                    <p className="text-sm text-gray-700 mt-1">
+                      IBKR Portal &gt; Settings &gt; Flex Web Service. Set expiration to max (1 year).
+                    </p>
+                  </li>
+                  <li className="relative">
+                    <div className="absolute -left-[27px] top-0.5 w-4 h-4 rounded-full bg-blue-50 border-2 border-[#0051cc]"></div>
+                    <h5 className="text-sm font-bold text-gray-900">2. Configure Query</h5>
+                    <p className="text-sm text-gray-700 mt-1">
+                      Create Flex Query. Enable "Open Positions" and "Trades". Check ALL data fields to ensure metadata fidelity.
+                    </p>
+                  </li>
+                  <li className="relative">
+                    <div className="absolute -left-[27px] top-0.5 w-4 h-4 rounded-full bg-blue-50 border-2 border-[#0051cc]"></div>
+                    <h5 className="text-sm font-bold text-gray-900">3. Authenticate</h5>
+                    <p className="text-sm text-gray-700 mt-1 mb-2.5">
+                      Input the 24-digit Token and 6-10 digit Query ID in Sentry.
+                    </p>
+                    {onOpenIBKRModal && (
+                      <button
+                        onClick={() => {
+                          onClose();
+                          onOpenIBKRModal();
+                        }}
+                        className="px-2.5 py-1.5 bg-[#0051cc] text-white text-xs font-bold rounded hover:bg-blue-700 transition-colors uppercase tracking-wide flex items-center gap-1.5"
+                      >
+                        <Link size={10} />
+                        Open Connection Modal
+                      </button>
+                    )}
+                  </li>
+                </ol>
+              </div>
+
+              <div className="border-l-4 border-[#0051cc] bg-blue-50 p-3.5 rounded-sm">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <RefreshCw size={12} style={{ color: ACCENT_COLOR }} />
+                  <h4 className="text-xs font-bold text-blue-900 uppercase">Sync Schedule</h4>
+                </div>
+                <p className="text-xs text-blue-800 leading-relaxed">
+                  Automated reconciliation occurs daily at <span className="font-mono font-bold text-[#0051cc]">12:00 EST</span> and <span className="font-mono font-bold text-[#0051cc]">17:30 EST</span>.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default PortfolioGuidePanel;

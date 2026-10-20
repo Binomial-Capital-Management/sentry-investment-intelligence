@@ -1,0 +1,48 @@
+{
+  "label": "5_klein_greeks",
+  "row_count": 100000,
+  "surface_name": "klein_bottle",
+  "genus": 2,
+  "orientable": false,
+  "euler_characteristic": 0,
+  "classification_mode": "validated_2d_faces",
+  "surface_confidence": 0.9986,
+  "betti_0": 1,
+  "betti_1": 3655,
+  "vertex_count": 3658,
+  "edge_count": 7312,
+  "face_count": 3652,
+  "exported_faces": 3652,
+  "face_coverage": 0.9978,
+  "occupancy": 0.9995,
+  "boundary_edge_count": 16,
+  "boundary_loop_count": 2,
+  "face_euler_characteristic": -2,
+  "face_genus_estimate": 1.0,
+  "axes": [
+    {
+      "column": "trade_date",
+      "type": "temporal",
+      "size": 60,
+      "wraps": true,
+      "wrap_orientation": 1,
+      "ordered": true
+    },
+    {
+      "column": "moneyness",
+      "type": "numeric_ordered",
+      "size": 61,
+      "wraps": true,
+      "wrap_orientation": -1,
+      "ordered": true
+    }
+  ],
+  "field_columns": [
+    "gamma_net",
+    "vega_net",
+    "theta_net",
+    "iv_level"
+  ],
+  "primary_field": "gamma_net",
+  "build_ms": 676.9
+}

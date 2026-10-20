@@ -1,0 +1,883 @@
+# Canvas Tool Registry
+# All tool definitions for the Canvas analysis platform
+# Format: YAML for readability, loaded at startup by loader.py
+
+tools:
+  # =============================================================================
+  # RISK TOOLS
+  # =============================================================================
+  - id: monte_carlo
+    name: Monte Carlo Simulation
+    description: Portfolio risk simulation with price paths and VaR metrics
+    category: risk
+    executor: api.routers.canvas.tool_workflow.tools.risk.montecarlo.execute_monte_carlo
+    params_schema:
+      portfolio_id: {type: string, required: false, description: Portfolio ID to analyze}
+      tickers: {type: array, items: string, required: false, description: Stock tickers}
+      weights: {type: array, items: number, required: false, description: Portfolio weights}
+      portfolio_value: {type: number, default: 1000000, min: 1000}
+      n_simulations: {type: number, default: 1000, min: 100, max: 10000}
+      time_horizon: {type: number, default: 252, min: 21, max: 504, description: Trading days}
+      use_hmm: {type: boolean, default: false, description: Use HMM regime switching}
+      n_regimes: {type: number, default: 3, min: 2, max: 5}
+
+  - id: barra_factors
+    name: Factor Analysis
+    description: Barra-style factor exposure and risk decomposition
+    category: risk
+    executor: api.routers.canvas.tool_workflow.tools.risk.barra.execute_barra_factors
+    params_schema:
+      portfolio_id: {type: string, required: false, description: Portfolio ID to analyze}
+      tickers: {type: array, items: string, required: false, description: Stock tickers}
+      weights: {type: array, items: number, required: false, description: Portfolio weights}
+      period: {type: string, default: "1y", enum: ["6mo", "1y", "2y"], description: Historical data period}
+      factor_set: {type: string, default: default, enum: [default, sector, style, comprehensive, custom], description: Factor ETF set to use}
+      custom_factors:
+        type: object
+        required: false
+        description: "Custom factor ETFs mapping (e.g., {'SPY': 'Market', 'XLF': 'Financials'}). Only used when factor_set='custom'"
+        example: {SPY: Market, QQQ: Tech, IWM: SmallCap}
+
+  - id: var
+    name: Value at Risk
+    description: VaR analysis with parametric, historical, and Monte Carlo methods
+    category: risk
+    executor: api.routers.canvas.tool_workflow.tools.risk.var.execute_var
+    params_schema:
+      portfolio_id: {type: string, required: false, description: Portfolio ID to analyze}
+      tickers: {type: array, items: string, required: false, description: Stock tickers}
+      weights: {type: array, items: number, required: false, description: Portfolio weights}
+      method: {type: string, default: all, enum: [parametric, historical, monte_carlo, all], description: VaR calculation method}
+      confidence_levels: {type: array, items: number, required: false, description: "Confidence levels (default: [0.95, 0.99])"}
+      portfolio_value: {type: number, default: 1000000, min: 1000, description: Portfolio value in dollars}
+      period: {type: string, default: "1y", enum: ["6mo", "1y", "2y"], description: Historical data period}
+
+  - id: systemic_risk
+    name: Systemic Risk Score
+    description: PageRank-based network analysis for portfolio systemic risk concentration
+    category: risk
+    executor: api.routers.canvas.tool_workflow.tools.risk.systemic.execute_systemic_risk
+    params_schema:
+      portfolio_id: {type: string, required: false, description: Portfolio ID to analyze}
+      tickers: {type: array, items: string, required: false, description: Stock tickers (min 2)}
+      weights: {type: array, items: number, required: false, description: Portfolio weights}
+      lookback_days: {type: number, default: 252, min: 60, max: 504, description: Days of historical data}
+      correlation_threshold: {type: number, default: 0.3, min: 0.1, max: 0.7, description: Minimum correlation for network edge}
+
+  - id: network_risk
+    name: Portfolio Network Analysis
+    description: "Graph theory analysis: MST, bridges, communities, centrality, contagion risk, and shock propagation simulation"
+    category: risk
+    executor: api.routers.canvas.tool_workflow.tools.risk.network.execute_network_risk
+    params_schema:
+      portfolio_id: {type: string, required: false, description: Portfolio ID to analyze}
+      tickers: {type: array, items: string, required: false, description: Stock tickers (min 2)}
+      weights: {type: array, items: number, required: false, description: Portfolio weights}
+      lookback_days: {type: number, default: 252, min: 60, max: 504, description: Days of historical data}
+      correlation_threshold: {type: number, default: 0.3, min: 0.1, max: 0.7, description: Minimum correlation for network edge}
+      optimize_hedges: {type: boolean, default: false, description: Generate hedge recommendations with cascade impact analysis}
+      simulate_shock: {type: boolean, default: false, description: Run shock propagation simulation to see how losses cascade through the portfolio}
+      shock_ticker: {type: string, required: false, description: Ticker to shock (leave empty to shock most central stock)}
+      shock_magnitude: {type: number, default: -10, min: -50, max: -1, description: "Shock magnitude in % (e.g., -10 for a 10% drop)"}
+
+  - id: implied_corr
+    name: Implied Correlation
+    description: Market-implied correlation from index options using the variance-decomposition method - compare index IV vs constituent IVs to derive correlation expectations
+    category: risk
+    executor: api.routers.canvas.tool_workflow.tools.risk.implied_corr.execute_implied_corr
+    params_schema:
+      index_ticker: {type: string, required: true, description: "Index ETF ticker (e.g., SPY, QQQ, IWM, DIA, EFA, EEM)"}
+      tenor: {type: string, default: "3m", enum: ["1m", "3m", "6m"], description: Time horizon for implied volatility}
+      strike_reference: {type: string, default: ATM, enum: [ATM, DELTA_CALL, DELTA_PUT], description: "Strike selection: ATM (at-the-money), DELTA_CALL (50-delta call), DELTA_PUT (50-delta put)"}
+      top_n_constituents: {type: number, default: 20, min: 5, max: 50, description: Number of top holdings to analyze}
+      expiry_tolerance_days: {type: number, default: 7, min: 1, max: 30, description: "Advanced: Days tolerance for expiration matching"}
+      atm_strike_tolerance: {type: number, default: 0.05, min: 0.01, max: 0.20, description: "Advanced: ATM strike tolerance (5% = ±5% from spot)"}
+      delta_call_target: {type: number, default: 0.50, min: 0.30, max: 0.70, description: "Advanced: Target delta for DELTA_CALL strike selection"}
+      delta_put_target: {type: number, default: -0.50, min: -0.70, max: -0.30, description: "Advanced: Target delta for DELTA_PUT strike selection"}
+      delta_tolerance: {type: number, default: 0.10, min: 0.05, max: 0.30, description: "Advanced: Delta matching tolerance"}
+
+  - id: fft_denoise
+    name: FFT Denoising
+    description: Fast Fourier Transform denoising to extract underlying trends and identify dominant cyclical patterns in price data. Removes noise while preserving signal at multiple resolution levels.
+    category: risk
+    executor: api.routers.canvas.tool_workflow.tools.risk.fft_denoise.execute_fft_denoise
+    params_schema:
+      ticker: {type: string, required: true, description: "Stock ticker to analyze (e.g., AAPL, SPY)"}
+      period: {type: string, default: "1Y", enum: ["1M", "3M", "6M", "1Y", "2Y", "5Y", max], description: Historical period to analyze. Longer periods reveal larger cycles.}
+      components:
+        type: array
+        items: number
+        default: [3, 6, 9, 100]
+        description: "Number of frequency components to preserve at each denoising level. FFT decomposes price into frequencies (cycles); keeping fewer components = smoother trend, keeping more = retains detail."
+
+  - id: rolling_corr
+    name: Rolling Correlation
+    description: Time-varying correlation analysis between two assets or portfolios using rolling windows. Supports Pearson or zero-mean (correlation swap) correlation with Fisher-transformed confidence intervals.
+    category: risk
+    executor: api.routers.canvas.tool_workflow.tools.risk.rolling_corr.execute_rolling_corr
+    params_schema:
+      input_type_x: {type: string, default: ticker, enum: [ticker, portfolio], description: "First asset type: individual ticker or portfolio"}
+      ticker_x: {type: string, required: false, description: "First asset ticker (e.g., SPY)"}
+      x_portfolio_id: {type: string, required: false, description: First portfolio to analyze}
+      input_type_y: {type: string, default: ticker, enum: [ticker, portfolio], description: "Second asset type: individual ticker or portfolio"}
+      ticker_y: {type: string, required: false, description: "Second asset ticker (e.g., TLT)"}
+      y_portfolio_id: {type: string, required: false, description: Second portfolio to analyze}
+      window: {type: number, default: 30, min: 10, max: 252, description: Rolling window size in trading days.}
+      returns_type: {type: string, default: logarithmic, enum: [simple, logarithmic, absolute], description: Returns calculation type}
+      zero_mean_mode: {type: boolean, default: false, description: Use zero-mean correlation (correlation swap convention).}
+      period: {type: string, default: "2Y", enum: ["6M", "1Y", "2Y", "5Y", max], description: Historical data period.}
+
+  - id: optimization
+    name: Portfolio Optimization
+    description: Markowitz mean-variance optimization with efficient frontier
+    category: risk
+    executor: api.routers.canvas.tool_workflow.tools.risk.optimization.execute_optimization
+    params_schema:
+      portfolio_id: {type: string, required: false, description: Portfolio ID to optimize}
+      tickers: {type: array, items: string, required: false, description: Stock tickers (min 2)}
+      weights: {type: array, items: number, required: false, description: Current portfolio weights}
+      method: {type: string, default: max_sharpe, enum: [min_variance, max_sharpe, risk_parity, target_return], description: Optimization method}
+      min_weight: {type: number, default: 0.0, min: 0.0, max: 0.5, description: Minimum weight per asset}
+      max_weight: {type: number, default: 0.40, min: 0.1, max: 1.0, description: Maximum weight per asset}
+      target_return: {type: number, required: false, description: Target annual return (for target_return method)}
+      period: {type: string, default: "1y", enum: ["6mo", "1y", "2y", "5y"], description: Historical data period}
+
+  - id: stress_test
+    name: Correlation Stress Test
+    description: Simulate portfolio risk under correlation shock scenarios (market crash)
+    category: risk
+    executor: api.routers.canvas.tool_workflow.tools.risk.stresstest.execute_stress_test
+    params_schema:
+      portfolio_id: {type: string, required: false, description: Portfolio ID to stress test}
+      tickers: {type: array, items: string, required: false, description: Stock tickers (min 2)}
+      weights: {type: array, items: number, required: false, description: Portfolio weights}
+      n_simulations: {type: number, default: 1000, min: 100, max: 5000, description: Monte Carlo paths}
+      time_horizon: {type: number, default: 63, min: 21, max: 252, description: Forecast horizon in days}
+      portfolio_value: {type: number, default: 1000000, min: 1000, description: Portfolio value in dollars}
+      confidence_level: {type: number, default: 0.95, min: 0.90, max: 0.99, description: VaR confidence level}
+      correlation_scenarios: {type: array, items: number, required: false, description: "Correlation levels to test (default: [0.50, 0.75, 0.90, 0.95])"}
+      period: {type: string, default: "1y", enum: ["6mo", "1y", "2y"], description: Historical data period}
+
+  - id: drawdown
+    name: Drawdown Analysis
+    description: "Maximum drawdown, recovery periods, and underwater time analysis"
+    category: risk
+    executor: api.routers.canvas.tool_workflow.tools.risk.drawdown.execute_drawdown
+    params_schema:
+      portfolio_id: {type: string, required: false, description: Portfolio ID to analyze}
+      tickers: {type: array, items: string, required: false, description: Stock tickers}
+      weights: {type: array, items: number, required: false, description: Portfolio weights}
+      period: {type: string, default: "2y", enum: ["1y", "2y", "5y", max], description: Historical data period}
+
+  - id: hedge
+    name: Hedge Portfolio
+    description: Create factor-neutral hedge positions using ETFs to neutralize market/sector exposure
+    category: risk
+    executor: api.routers.canvas.tool_workflow.tools.risk.hedge.execute_hedge
+    params_schema:
+      portfolio_id: {type: string, required: false, description: Portfolio ID to hedge}
+      tickers: {type: array, items: string, required: false, description: Stock tickers to hedge}
+      weights: {type: array, items: number, required: false, description: Portfolio weights}
+      hedge_strategy: {type: string, default: market_neutral, enum: [market_neutral, sector_neutral, custom], description: Hedging strategy}
+      period: {type: string, default: "1y", enum: ["6mo", "1y", "2y"], description: Historical data period}
+
+  # =============================================================================
+  # QUANT TOOLS
+  # =============================================================================
+  - id: vol_surface
+    name: Volatility Surface
+    description: 3D implied volatility surface modeling with IV smile and term structure
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.volsurface.execute_vol_surface
+    params_schema:
+      underlying: {type: string, required: false, description: "Underlying ticker (e.g., AAPL, SPY)"}
+      grid_resolution: {type: number, default: 30, min: 10, max: 50, description: Surface interpolation resolution}
+      target_dte_for_smile: {type: number, required: false, description: DTE for IV smile cross-section (~30 days default)}
+      compute_analytics: {type: boolean, default: false, description: "Include ATM IV, skew, term slope analytics"}
+      include_realized_vol: {type: boolean, default: true, description: Calculate realized vol for VRP}
+      peer_tickers: {type: array, items: string, required: false, description: Peers for cross-sectional ranking}
+
+  - id: correlation_matrix
+    name: Correlation Matrix
+    description: "Portfolio correlation analysis with heatmap, eigenvalue decomposition, and clustering"
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.correlation.execute_correlation_matrix
+    params_schema:
+      portfolio_id: {type: string, required: false, description: Portfolio ID to analyze}
+      tickers: {type: array, items: string, required: false, description: Stock tickers (min 2)}
+      method: {type: string, default: pearson, enum: [pearson, spearman, kendall], description: Correlation method}
+      lookback_period: {type: number, default: 252, min: 30, max: 756, description: Days of historical data}
+      hierarchical_clustering: {type: boolean, default: true, description: Perform hierarchical clustering}
+      tail_dependence: {type: boolean, default: false, description: Calculate tail dependence (extreme events)}
+
+  - id: pca_analysis
+    name: PCA Analysis
+    description: Principal component analysis with eigen-portfolios and factor loadings
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.pca.execute_pca_analysis
+    params_schema:
+      portfolio_id: {type: string, required: false, description: Portfolio ID to analyze}
+      tickers: {type: array, items: string, required: false, description: Stock tickers (min 3)}
+      n_components: {type: number, required: false, description: "Number of components (default: all)"}
+      period: {type: string, default: "1Y", enum: ["3M", "6M", "1Y", "2Y"], description: Historical period}
+      normalize: {type: boolean, default: true, description: Standardize returns before PCA}
+
+  - id: cointegration
+    name: Cointegration Analysis
+    description: Pairs trading cointegration tests with spread analysis and trading signals
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.cointegration.execute_cointegration
+    params_schema:
+      tickers: {type: array, items: string, required: true, description: "Stock tickers to test (min 2, e.g., GLD, GDX)"}
+      lookback_period: {type: number, default: 252, min: 60, max: 756, description: Days of historical data}
+      significance_level: {type: number, default: 0.05, min: 0.01, max: 0.10, description: P-value threshold for significance}
+
+  - id: arima_forecast
+    name: ARIMA Forecast
+    description: "Time series price forecasting with confidence intervals using auto-ARIMA. The model uses (p,d,q) parameters."
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.arima.execute_arima_forecast
+    params_schema:
+      ticker: {type: string, required: true, description: "Stock ticker to forecast (e.g., AAPL)"}
+      forecast_periods: {type: number, default: 30, min: 5, max: 90, description: Number of days to forecast ahead}
+      period: {type: string, default: "1Y", enum: ["6M", "1Y", "2Y", "5Y"], description: Historical data for training}
+      arima_order: {type: string, required: false, description: "Manual ARIMA (p,d,q) order, e.g. '5,1,2'. Leave empty for auto-selection"}
+      seasonal: {type: boolean, default: true, description: Enable SARIMA for recurring patterns}
+      seasonal_period: {type: number, default: 5, min: 2, max: 252, description: "Cycle length: 5=weekly, 21=monthly, 63=quarterly"}
+      max_p: {type: number, default: 10, min: 1, max: 20, description: Max AR(p) order to search}
+      max_q: {type: number, default: 10, min: 1, max: 20, description: Max MA(q) order to search}
+      stepwise: {type: boolean, default: true, description: Stepwise=fast heuristic search}
+
+  - id: arimax
+    name: ARIMAX Macro Forecast
+    description: Multi-factor forecasting with macroeconomic indicators. Forecast stock prices or economic data using FRED macro drivers.
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.arimax.execute_arimax
+    params_schema:
+      forecast_mode: {type: string, required: true, enum: [stock, macro], description: "Choose what to forecast: Stock/ETF prices or Economic indicators"}
+      stock_symbol: {type: string, required: false, description: "Stock/ETF ticker to forecast (e.g., AAPL, SPY)"}
+      macro_indicator:
+        type: string
+        required: false
+        enum: [CPIAUCSL, CPILFESL, PCEPI, DGS10, DGS2, DGS30, FEDFUNDS, UNRATE, ICSA, PAYEMS, GDPC1, INDPRO, RSXFS, HOUST, VIXCLS, T10Y2Y, T10Y3M, BAMLH0A0HYM2, DEXUSEU, DEXJPUS, DCOILWTICO, GOLDAMGBD228NLBM, M2SL, WALCL]
+        description: Economic indicator to forecast
+      forecast_periods: {type: number, default: 30, min: 7, max: 180, description: Days ahead to forecast}
+      period: {type: string, default: "3Y", enum: ["1Y", "2Y", "3Y", "5Y"], description: Historical data period for training}
+      indicator_categories:
+        type: array
+        items: string
+        default: [rates, inflation]
+        enum: [rates, inflation, employment, growth, financial_conditions, commodities, housing, trade, money_supply, credit]
+        description: Macro drivers to use as predictors
+      confidence_level: {type: number, default: 0.95, min: 0.80, max: 0.99, description: Confidence interval level}
+      max_indicators: {type: number, default: 5, min: 1, max: 8, description: Maximum macro indicators to include}
+
+  - id: dealer_gamma
+    name: Dealer Gamma Regime
+    description: Estimate dealer gamma positioning from observable price dynamics. Identifies SHORT/LONG gamma regimes.
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.dealer_gamma.execute_dealer_gamma
+    params_schema:
+      ticker: {type: string, required: true, description: "Stock ticker to analyze (e.g., SPY, AAPL, QQQ)"}
+      min_oi_threshold: {type: number, default: 100, min: 10, max: 50000, description: Minimum open interest to include contracts}
+      max_dte: {type: number, default: 45, min: 7, max: 90, description: Maximum days to expiration for options chain}
+      lookback_days: {type: number, default: 60, min: 30, max: 252, description: Days of price history for regime estimation}
+      use_hmm_regime: {type: boolean, default: false, description: Use Hidden Markov Model for multi-feature regime detection}
+      hmm_n_states: {type: number, default: 3, min: 2, max: 5, description: Number of HMM states (if HMM enabled)}
+      hmm_features:
+        type: array
+        items: string
+        default: [autocorrelation, volatility, momentum]
+        enum: [autocorrelation, volatility, vol_dynamics, momentum, higher_moments, range]
+        description: HMM feature families to use for regime detection
+
+  - id: confluence
+    name: Signal Confluence
+    description: Multi-factor anomaly scanner that detects when multiple independent signals align - the Rentec approach.
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.confluence.execute_confluence
+    params_schema:
+      ticker: {type: string, required: true, description: "Stock ticker to analyze (e.g., SPY, AAPL, TSLA)"}
+      z_threshold: {type: number, default: 1.5, min: 1.0, max: 3.0, description: Z-score threshold for extreme signals}
+      min_signals: {type: number, default: 3, min: 2, max: 10, description: Minimum aligned signals to flag confluence}
+      categories:
+        type: array
+        items: string
+        required: false
+        enum: [volatility, flow, positioning, smart_money, short]
+        description: Signal categories to analyze (leave empty for all)
+
+  - id: greeks_surface
+    name: Greeks Surface
+    description: "3D options Greeks surfaces (Delta, Gamma, Theta, Vega) with smile and term structure analysis"
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.greeks_surface.execute_greeks_surface
+    params_schema:
+      ticker: {type: string, required: true, description: "Underlying stock ticker (e.g., AAPL, SPY)"}
+      greeks_to_model: {type: array, items: string, default: [delta, gamma, theta, vega], enum: [delta, gamma, theta, vega], description: Which Greeks to model surfaces for}
+      max_dte: {type: number, default: 90, min: 30, max: 180, description: Maximum days to expiration to include}
+      target_dte_for_smile: {type: number, default: 30, min: 7, max: 90, description: Target DTE for Greeks smile cross-section chart}
+      grid_resolution: {type: number, default: 25, min: 15, max: 50, description: Surface interpolation resolution}
+
+  - id: mean_reversion
+    name: Mean Reversion Signals
+    description: Z-score based mean reversion trading signals with stationarity testing and backtesting
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.mean_reversion.execute_mean_reversion
+    params_schema:
+      ticker: {type: string, required: true, description: "Stock ticker to analyze (e.g., AAPL, SPY)"}
+      lookback_period: {type: number, default: 120, min: 60, max: 504, description: Days of historical data for analysis}
+      lookback_window: {type: number, default: 20, min: 5, max: 60, description: Rolling window for mean/std calculation}
+      z_score_entry_long: {type: number, default: -2.0, min: -4.0, max: -0.5, description: Z-score threshold to enter LONG}
+      z_score_entry_short: {type: number, default: 2.0, min: 0.5, max: 4.0, description: Z-score threshold to enter SHORT}
+      z_score_exit: {type: number, default: 0.5, min: 0.0, max: 1.5, description: Z-score threshold to exit position}
+      direction: {type: string, default: both, enum: [both, long_only, short_only], description: Trading direction constraint}
+      test_stationarity: {type: boolean, default: true, description: Run ADF stationarity test}
+      run_backtest: {type: boolean, default: true, description: Run historical backtest with transaction costs}
+      transaction_cost_bps: {type: number, default: 10.0, min: 0.0, max: 50.0, description: Transaction cost in basis points}
+
+  - id: iv_rv_screener
+    name: IV vs RV Screener
+    description: Compare implied volatility to realized volatility to find mispriced options
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.iv_rv_screener.execute_iv_rv_screener
+    params_schema:
+      ticker: {type: string, required: true, description: "Stock ticker to analyze (e.g., AAPL, SPY)"}
+      rv_window: {type: number, default: 20, min: 5, max: 60, description: Days for realized volatility calculation}
+      min_dte: {type: number, default: 14, min: 7, max: 30, description: Minimum days to expiration for IV extraction}
+      max_dte: {type: number, default: 45, min: 21, max: 90, description: Maximum days to expiration for IV extraction}
+
+  - id: squeeze_detector
+    name: Squeeze Detector
+    description: "Detect gamma squeeze and short squeeze setups using dealer positioning, options flow, and short interest"
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.squeeze_detector.execute_squeeze_detector
+    params_schema:
+      ticker: {type: string, required: true, description: "Stock ticker to analyze (e.g., GME, AMC, TSLA)"}
+      lookback_days: {type: number, default: 60, min: 30, max: 120, description: Historical window for z-score calculation}
+      include_gamma: {type: boolean, default: true, description: Include gamma/GEX analysis (dealer positioning)}
+      include_momentum: {type: boolean, default: true, description: Include options flow momentum signals}
+      include_short: {type: boolean, default: true, description: Include short interest analysis}
+
+  - id: sector_rotation
+    name: Sector Rotation Flow
+    description: Detect capital rotation between sectors using options flow - identifies where institutional money is flowing
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.sector_rotation.execute_sector_rotation
+    params_schema:
+      use_regime: {type: boolean, default: true, description: Enable market regime detection (risk-on/risk-off/transition)}
+      use_anomaly: {type: boolean, default: false, description: Enable anomaly detection for unusual flow patterns}
+      include_vega: {type: boolean, default: true, description: Include vega flow momentum in analysis}
+
+  - id: gex
+    name: Gamma Exposure (GEX)
+    description: Dealer gamma positioning analysis - identifies key support/resistance levels and regime (long/short gamma)
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.gex.execute_gex
+    params_schema:
+      ticker: {type: string, required: true, description: "Underlying ticker (e.g., SPY, AAPL, QQQ)"}
+      max_dte: {type: number, default: 45, min: 7, max: 90, description: Maximum days to expiration for options}
+      min_oi: {type: number, default: 100, min: 10, max: 1000, description: Minimum open interest filter}
+      use_hmm: {type: boolean, default: false, description: Use HMM for regime detection (more robust but slower)}
+
+  - id: instanton
+    name: Instanton Rare Event
+    description: Physics-based crash probability using instanton methods - finds the most likely path to a crash analytically
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.instanton.execute_instanton
+    params_schema:
+      portfolio_id: {type: string, description: Portfolio ID for portfolio-level analysis}
+      ticker: {type: string, description: Single ticker for asset-level analysis (use if no portfolio)}
+      crash_pct: {type: number, min: -80, max: -5, description: Crash percentage target. Leave empty for auto.}
+      crash_target: {type: string, default: var_99, enum: [var_95, var_99, max_drawdown, vol_3], description: Auto crash target if crash_pct not specified}
+      horizon_days: {type: number, default: 30, min: 5, max: 120, description: Time horizon in trading days}
+      lookback_days: {type: number, default: 756, min: 252, max: 1260, description: Historical lookback for fitting (756 = 3 years)}
+      distribution: {type: string, default: auto, enum: [auto, normal, student_t], description: Distribution to fit (auto uses BIC)}
+
+  - id: earnings_pattern
+    name: Earnings Pattern Analyzer
+    description: "Analyzes historical earnings patterns - vol crush rates, expected vs actual moves, short straddle returns."
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.earnings_pattern.execute_earnings_pattern
+    params_schema:
+      ticker: {type: string, required: true, description: Stock ticker to analyze}
+      lookback_quarters: {type: number, default: 8, min: 4, max: 20, description: Number of historical quarters to analyze}
+
+  - id: vanna_charm
+    name: Vanna/Charm Flow
+    description: "Second-order Greeks analysis - vanna (delta change from vol) and charm (delta decay from time)."
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.vanna_charm.execute_vanna_charm
+    params_schema:
+      ticker: {type: string, required: true, description: Stock ticker to analyze}
+      min_oi: {type: number, default: 100, min: 10, max: 1000, description: Minimum open interest filter}
+      max_dte: {type: number, default: 45, min: 7, max: 90, description: Maximum days to expiration}
+
+  - id: hedge_path
+    name: Dijkstra Hedge Path
+    description: Optimal hedge finder using Dijkstra algorithm.
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.hedge_path.execute_hedge_path
+    params_schema:
+      portfolio_id: {type: string, description: Portfolio to hedge}
+      tickers: {type: string, description: Comma-separated tickers (alt to portfolio)}
+      delta_reduction_pct: {type: number, min: 10, max: 100, description: "Delta reduction target % (e.g., 50)"}
+      target_beta: {type: number, min: 0, max: 2, step: 0.1, description: "Target portfolio beta (e.g., 0.5)"}
+      target_var_1d_pct: {type: number, min: 0.1, max: 5, step: 0.1, description: "Target daily VaR % (e.g., 1.5)"}
+      neutralize_sectors: {type: string, description: "Sectors to neutralize (e.g., XLK,XLF)"}
+      max_dte: {type: number, default: 45, min: 7, max: 90, description: Max option DTE}
+
+  - id: recession_field
+    name: Recession Field Theory
+    description: Physics-inspired recession early warning using phase transition theory. Detects critical slowing down 3-9 months before recessions.
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.recession_field.execute_recession_field
+    params_schema:
+      lookback_years: {type: number, default: 5, min: 2, max: 15, description: Years of historical macro data}
+      field_method: {type: string, default: weighted, enum: [weighted, pca], description: "Field construction: weighted (interpretable) or pca (data-driven)"}
+      include_ml_probability: {type: boolean, default: true, description: Include ML-based 6-month recession probability}
+
+  - id: geodesic
+    name: Portfolio Geodesic Distance
+    description: Fisher-Rao geodesic distance between portfolio return distributions using Information Geometry.
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.geodesic.execute_geodesic
+    params_schema:
+      portfolio_id: {type: string, description: Portfolio to analyze}
+      compare_to_portfolio_id: {type: string, description: Second portfolio to compare (optional)}
+      tickers: {type: array, items: {type: string}, description: Manual tickers (if no portfolio)}
+      lookback_days: {type: number, default: 252, min: 60, max: 756, description: Trading days of history}
+
+  - id: herding
+    name: Herding Regime Detector
+    description: Ising model-inspired crowding/herding detection using physics statistics. Computes magnetization and susceptibility.
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.herding.execute_herding
+    params_schema:
+      portfolio_id: {type: string, required: false, description: Portfolio to analyze for herding}
+      tickers: {type: array, items: string, required: false, description: Stock tickers to analyze (defaults to 11 sector ETFs)}
+      lookback_days: {type: number, default: 252, min: 60, max: 756, description: Days of historical data}
+      window: {type: number, default: 21, min: 5, max: 63, description: Rolling window for statistics (trading days)}
+      field_mode: {type: string, default: discretionary, enum: [discretionary, macro], description: External field mode}
+      include_vix: {type: boolean, default: true, description: Use VIX for temperature (T) parameter}
+      include_options_flow: {type: boolean, default: true, description: Use options flow for coupling (J) parameter}
+      include_hmm: {type: boolean, default: true, description: Fit HMM for regime classification}
+
+  - id: option_pricing
+    name: Option Pricing
+    description: "Price equity options using Black-Scholes, Binomial Tree, or Monte Carlo."
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.option_pricing.execute_option_pricing
+    params_schema:
+      ticker: {type: string, required: true, description: "Underlying stock ticker (e.g., AAPL, SPY)"}
+      strike: {type: number, required: true, description: Strike price ($)}
+      expiry: {type: string, required: false, description: "Expiry date YYYY-MM-DD (default: 30 days out)"}
+      option_type: {type: string, default: call, enum: [call, put], description: Call or Put}
+      pricing_model: {type: string, default: black_scholes, enum: [black_scholes, binomial, monte_carlo], description: Pricing model}
+      american: {type: boolean, default: false, description: American-style early exercise (only for Binomial model)}
+      num_simulations: {type: number, default: 10000, min: 100, max: 100000, description: Number of Monte Carlo simulations}
+
+  - id: corr_swap
+    name: Correlation Swap
+    description: Price correlation swap derivatives using zero-mean correlation convention.
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.corr_swap.execute_corr_swap
+    params_schema:
+      input_type_x: {type: string, default: ticker, enum: [ticker, portfolio], description: First asset type}
+      asset_x: {type: string, required: false, description: "First asset ticker (e.g., SPY)"}
+      x_portfolio_id: {type: string, required: false, description: First portfolio to analyze}
+      input_type_y: {type: string, default: ticker, enum: [ticker, portfolio], description: Second asset type}
+      asset_y: {type: string, required: false, description: "Second asset ticker (e.g., TLT)"}
+      y_portfolio_id: {type: string, required: false, description: Second portfolio to analyze}
+      notional: {type: number, default: 1000000, min: 10000, max: 100000000, description: Swap notional amount ($)}
+      strike_correlation: {type: number, default: 0.5, min: -0.99, max: 0.99, description: Strike correlation level}
+      tenor: {type: number, default: 63, min: 20, max: 252, description: Days to maturity}
+      risk_free_rate: {type: number, required: false, description: Annual risk-free rate (%) for discounting}
+      rolling_window: {type: number, default: 20, min: 5, max: 60, description: Rolling window size (days)}
+      pricing_mode: {type: string, default: realized, enum: [realized, forward], description: Pricing mode}
+      days_remaining: {type: number, default: 60, required: false, min: 1, max: 252, description: For forward pricing - days until maturity}
+      num_simulations: {type: number, default: 10000, min: 1000, max: 100000, description: Monte Carlo simulations (forward mode only)}
+
+  - id: hedge_ratio
+    name: Hedge Ratio
+    description: Calculate optimal hedge ratios for pairs trading using OLS, TLS, or Kalman filter.
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.hedge_ratio.execute_hedge_ratio
+    params_schema:
+      input_type_primary: {type: string, default: ticker, enum: [ticker, portfolio], description: Primary asset type}
+      primary_asset: {type: string, required: false, description: Primary asset ticker (independent variable, X)}
+      primary_portfolio_id: {type: string, required: false, description: Primary portfolio to analyze}
+      input_type_hedge: {type: string, default: ticker, enum: [ticker, portfolio], description: Hedge asset type}
+      hedge_asset: {type: string, required: false, description: Hedge asset ticker (dependent variable, Y)}
+      hedge_portfolio_id: {type: string, required: false, description: Hedge portfolio to analyze}
+      method: {type: string, default: ols, enum: [ols, tls, kalman], description: Estimation method}
+      window: {type: number, required: false, min: 20, max: 252, description: Rolling window size in days (optional)}
+      period: {type: string, default: "1Y", enum: ["1M", "3M", "6M", "1Y", "2Y", "5Y"], description: Historical lookback period}
+
+  - id: dynamic_hedge
+    name: Dynamic Hedge
+    description: Multi-Greek monitoring and rebalancing optimization for options portfolios.
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.dynamic_hedge.execute_dynamic_hedge
+    params_schema:
+      input_type: {type: string, default: portfolio, enum: [portfolio, ticker], description: Input type}
+      portfolio_id: {type: string, required: false, description: Portfolio to analyze}
+      tickers: {type: string, required: false, description: "Manual tickers (comma-separated, e.g., 'AAPL,MSFT,GOOGL')"}
+      hedge_tickers: {type: string, default: SPY, description: Hedge instruments (comma-separated)}
+      target_delta: {type: number, default: 0.0, min: -100, max: 100, description: Target portfolio delta. 0 = delta-neutral.}
+      threshold: {type: number, default: 0.1, min: 0.01, max: 1.0, description: Multi-Greek drift threshold for rebalancing trigger}
+      frequency: {type: string, default: daily, enum: [intraday, daily, weekly], description: Rebalancing frequency}
+      lookback: {type: string, default: "30D", enum: ["30D", "60D", "90D", "6M", "1Y"], description: Historical backtest period}
+      option_type: {type: string, default: call, enum: [call, put], description: Option type to generate from holdings}
+      moneyness: {type: string, default: atm, enum: [atm, otm_5, itm_5], description: Strike selection}
+      days_to_expiry: {type: number, default: 30, min: 7, max: 365, description: Days to expiry for generated options}
+
+  - id: delta_hedge
+    name: Delta Hedge
+    description: Simple delta-neutral hedge construction using stocks/ETFs.
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.delta_hedge.execute_delta_hedge
+    params_schema:
+      input_type: {type: string, default: portfolio, enum: [portfolio, ticker], description: Input type}
+      portfolio_id: {type: string, required: false, description: Portfolio to analyze}
+      tickers: {type: string, required: false, description: Manual tickers (comma-separated)}
+      hedge_tickers: {type: string, default: SPY, description: "Hedge instruments (e.g., 'SPY' or 'SPY,QQQ')"}
+      target_delta: {type: number, default: 0.0, min: -100, max: 100, description: Target delta. 0 = delta-neutral.}
+      rebalance_threshold: {type: number, default: 0.1, min: 0.01, max: 1.0, description: Delta threshold for rebalancing alert}
+      option_type: {type: string, default: call, enum: [call, put], description: Option type to generate from holdings}
+      moneyness: {type: string, default: atm, enum: [atm, otm_5, itm_5], description: Strike selection}
+      days_to_expiry: {type: number, default: 30, min: 7, max: 365, description: Days to expiry for generated options}
+
+  - id: feature_importance
+    name: Feature Importance
+    description: XGBoost-based ML feature importance analysis for stock return prediction.
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.feature_importance.execute_feature_importance
+    params_schema:
+      input_type: {type: string, default: ticker, enum: [portfolio, ticker], description: Input type}
+      portfolio_id: {type: string, required: false, description: Portfolio to analyze}
+      tickers: {type: string, required: false, description: "Tickers (comma-separated, e.g., 'AAPL,MSFT')"}
+      target: {type: string, default: future_5day_return, enum: [future_5day_return, future_10day_return, future_20day_return], description: Prediction target}
+      period: {type: string, default: "1Y", enum: ["6M", "1Y", "2Y"], description: Historical data period}
+      top_n: {type: number, default: 15, min: 5, max: 30, description: Number of top features to show}
+      methods: {type: string, default: "gain,permutation,shap", description: "Importance methods (comma-separated): gain, permutation, shap"}
+
+  - id: cross_greeks
+    name: Cross-Asset Greeks
+    description: "Calculate second-order Greeks (vanna, volga, charm, veta) for advanced portfolio risk management."
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.cross_greeks.execute_cross_greeks
+    params_schema:
+      tickers: {type: array, required: false, items: string, description: Tickers to analyze}
+      portfolio_id: {type: string, required: false, description: Or select a portfolio}
+      option_type: {type: string, default: call, enum: [call, put], description: Option type to generate}
+      moneyness: {type: string, default: atm, enum: [atm, otm_5, otm_10, itm_5, itm_10], description: Strike selection}
+      expiry_months: {type: number, default: 3, enum: [1, 2, 3, 6, 12], description: Months until expiration}
+      greeks: {type: array, default: [vanna, volga, charm, veta], enum: [vanna, volga, charm, veta], description: Which second-order Greeks to calculate}
+      use_polygon: {type: boolean, default: true, description: Use Polygon API for IV (recommended)}
+
+  - id: greek_exposure
+    name: Greek Exposure
+    description: "Calculate first-order Greek exposures (Delta, Gamma, Vega, Theta) for options portfolios."
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.greek_exposure.execute_greek_exposure
+    params_schema:
+      greek_type: {type: string, required: true, default: delta, enum: [delta, gamma, vega, theta], description: Which Greek to calculate}
+      tickers: {type: array, required: false, items: string, description: Tickers to analyze}
+      portfolio_id: {type: string, required: false, description: Or select a portfolio}
+      option_type: {type: string, default: call, enum: [call, put], description: Option type to generate}
+      moneyness: {type: string, default: atm, enum: [atm, otm_5, otm_10, itm_5, itm_10], description: Strike selection}
+      expiry_months: {type: number, default: 3, enum: [1, 2, 3, 6, 12], description: Months until expiration}
+      days_forward: {type: number, default: 1, min: 1, max: 30, description: Days to project theta decay (only for theta)}
+
+  - id: nope
+    name: NOPE Divergence
+    description: "Detect NOPE (Net Options Pricing Effect) vs price divergences."
+    category: quant
+    executor: api.routers.canvas.tool_workflow.tools.quant.nope.execute_nope
+    params_schema:
+      screener:
+        type: string
+        default: custom
+        enum: [custom, etf_holdings, sector, sweep_storm, floor_accumulation, bullish_flow, bearish_flow, vol_gt_oi, high_delta, earnings_plays, mega_cap, large_cap, mid_cap, small_cap]
+        description: Screener preset or custom tickers
+      tickers: {type: string, required: false, description: Tickers to scan (for custom screener)}
+      etf_ticker: {type: string, required: false, description: "ETF to scan holdings (for etf_holdings screener), e.g., SPY, QQQ"}
+      sector:
+        type: string
+        required: false
+        enum: [Technology, Healthcare, Financial Services, Energy, Consumer Cyclical, Industrials, Communication Services, mag7, semi, cyber]
+        description: Sector or theme (for sector screener)
+      z_threshold: {type: number, default: 1.5, min: 1.0, max: 3.0, description: Statistical significance threshold}
+      lookback_days: {type: number, default: 5, min: 3, max: 7, description: Days of NOPE data to analyze}
+      top_n: {type: number, default: 10, min: 1, max: 50, description: Max tickers to scan}
+
+  # =============================================================================
+  # VALUATION TOOLS
+  # =============================================================================
+  - id: reverse_dcf
+    name: Reverse DCF
+    description: Back-solve for market-implied growth rate from current stock price
+    category: valuation
+    executor: api.routers.canvas.tool_workflow.tools.valuation.reverse_dcf.execute_reverse_dcf
+    params_schema:
+      ticker: {type: string, required: true, description: Stock ticker symbol}
+      model_type: {type: string, default: eps, enum: [eps, fcf], description: Base metric for DCF}
+      discount_rate: {type: number, required: false, description: Discount rate (auto-calculated from CAPM if not provided)}
+      stages: {type: number, default: 2, enum: [1, 2, 3], description: Number of DCF stages}
+      stage1_years: {type: number, default: 5, min: 1, max: 10, description: High-growth stage duration (years)}
+      stage2_years: {type: number, default: 5, min: 1, max: 10, description: Fade stage duration for 3-stage model (years)}
+      terminal_growth: {type: number, default: 0.025, min: 0.0, max: 0.05, description: Terminal growth rate}
+
+  - id: comps
+    name: Comparable Companies
+    description: Peer comparison with football field valuation and trading multiples analysis
+    category: valuation
+    executor: api.routers.canvas.tool_workflow.tools.valuation.comps.execute_comps
+    params_schema:
+      ticker: {type: string, required: true, description: Target company ticker}
+      peers: {type: string, required: true, description: "Peer tickers (comma-separated, e.g. MSFT,GOOGL,AMZN)"}
+      multiples:
+        type: array
+        required: false
+        items: string
+        default: [priceToEarningsRatio, evToEBITDA, priceToBookRatio]
+        enum: [priceToEarningsRatio, priceToEarningsRatioTTM, evToEBITDA, evToEBITDATTM, evToSales, evToSalesTTM, evToFreeCashFlow, evToFreeCashFlowTTM, priceToBookRatio, priceToBookRatioTTM, priceToSalesRatio, priceToSalesRatioTTM, priceToFreeCashFlowRatio, priceToFreeCashFlowRatioTTM, priceToOperatingCashFlowRatio, priceToOperatingCashFlowRatioTTM, priceToEarningsGrowthRatio, dividendYield, dividendYieldTTM, earningsYield, earningsYieldTTM, roe, grossProfitMargin, grossProfitMarginTTM, operatingProfitMargin, operatingProfitMarginTTM, netProfitMargin, netProfitMarginTTM, ebitdaMargin, ebitdaMarginTTM, netDebtToEBITDA, netDebtToEBITDATTM, marketCap, enterpriseValue]
+        description: Valuation multiples to compare
+
+  - id: epv
+    name: EPV (Earnings Power Value)
+    description: Graham/Dodd normalized earnings valuation - conservative floor value assuming zero growth
+    category: valuation
+    executor: api.routers.canvas.tool_workflow.tools.valuation.epv.execute_epv
+    params_schema:
+      ticker: {type: string, required: true, description: Stock ticker symbol}
+      wacc: {type: number, required: false, description: WACC (auto-calculated if not provided)}
+      tax_rate: {type: number, required: false, description: Effective tax rate (auto-calculated if not provided)}
+      normalization_years: {type: number, default: 5, min: 3, max: 10, description: Years to normalize earnings}
+      normalization_method: {type: string, default: weighted, enum: [average, median, weighted], description: Normalization method}
+
+  - id: rim
+    name: RIM (Residual Income)
+    description: Residual income model for banks, insurance, and financials
+    category: valuation
+    executor: api.routers.canvas.tool_workflow.tools.valuation.rim.execute_rim
+    params_schema:
+      ticker: {type: string, required: true, description: Stock ticker (best for banks/financials)}
+      cost_of_equity: {type: number, required: false, description: Cost of equity (auto from CAPM if not provided)}
+      terminal_roe: {type: number, required: false, description: Long-term sustainable ROE}
+      terminal_growth: {type: number, default: 0.02, min: 0.0, max: 0.04, description: Terminal growth rate}
+      projection_years: {type: number, default: 5, min: 3, max: 10, description: Projection period years}
+      use_tangible_book: {type: boolean, default: false, description: Use tangible book value (excludes goodwill)}
+      monte_carlo: {type: boolean, default: false, description: Run Monte Carlo simulation}
+      iterations: {type: integer, default: 1000, min: 100, max: 10000, description: Monte Carlo iterations}
+
+  - id: dcf_monte_carlo
+    name: Monte Carlo DCF
+    description: Probabilistic DCF valuation - runs 1000+ simulations to get fair value distribution
+    category: valuation
+    executor: api.routers.canvas.tool_workflow.tools.valuation.dcf_monte_carlo.execute_dcf_monte_carlo
+    params_schema:
+      ticker: {type: string, required: true, description: "Stock ticker to value (e.g., AAPL, MSFT)"}
+      terminal_growth: {type: number, default: 0.025, min: 0.01, max: 0.05, description: Long-term growth rate (2-4% typical)}
+      stages: {type: number, default: 2, enum: [1, 2, 3], description: "DCF stages: 1=stable, 2=growth+terminal, 3=growth+fade+terminal"}
+      stage1_years: {type: number, default: 5, min: 3, max: 10, description: High-growth period (years)}
+      model_type: {type: string, default: eps, enum: [eps, fcf], description: "Base metric: EPS or Free Cash Flow per share"}
+      iterations: {type: number, default: 1000, min: 100, max: 10000, description: Number of Monte Carlo simulations}
+
+  - id: dcf_traditional
+    name: Traditional DCF
+    description: "Deterministic DCF valuation: Stable (perpetuity), 2-stage (growth→terminal), or 3-stage (growth→fade→terminal)"
+    category: valuation
+    executor: api.routers.canvas.tool_workflow.tools.valuation.dcf_traditional.execute_dcf_traditional
+    params_schema:
+      ticker: {type: string, required: true, description: Stock ticker to value}
+      stages: {type: string, default: "2", required: true, enum: [stable, "2", "3"], description: DCF model type}
+      stage1_years: {type: number, default: 5, min: 1, max: 10, description: Growth period duration (years)}
+      stage2_years: {type: number, default: 5, min: 3, max: 10, description: Fade period duration (only for 3-stage)}
+      terminal_growth: {type: number, default: 0.025, min: 0.01, max: 0.05, description: Terminal perpetuity growth rate (2-3% typical)}
+      growth_rate: {type: number, required: false, description: Stage 1 growth rate (leave empty to auto-calculate)}
+      discount_rate: {type: number, required: false, description: Discount rate / cost of equity (leave empty to auto-calculate)}
+      model_type: {type: string, default: eps, enum: [eps, fcf], description: "Base metric: EPS or FCF per share"}
+
+  # =============================================================================
+  # SENTIMENT TOOLS
+  # =============================================================================
+  - id: finbert_sentiment
+    name: FinBERT Sentiment
+    description: NLP-based news sentiment analysis using FinBERT model
+    category: sentiment
+    executor: api.routers.canvas.tool_workflow.tools.sentiment.finbert.execute_finbert_sentiment
+    params_schema:
+      ticker: {type: string, required: false, description: "Stock ticker (e.g., AAPL). Optional for market-wide news"}
+      news_type: {type: string, default: stock, enum: [stock, press-releases, general, crypto, forex], description: Type of news to analyze}
+      max_articles: {type: number, default: 20, min: 5, max: 50, description: Maximum articles to analyze}
+
+  # =============================================================================
+  # STRUCTURING TOOLS
+  # =============================================================================
+  - id: dispersion
+    name: Dispersion Trade
+    description: Index vs constituents dispersion trades. Long index vol, short constituent vols.
+    category: structuring
+    executor: api.routers.canvas.tool_workflow.tools.structuring.dispersion.execute_dispersion
+    params_schema:
+      index_ticker: {type: string, default: SPY, description: "Index ETF (e.g., SPY, QQQ)"}
+      num_constituents: {type: number, default: 10, min: 3, max: 30, description: Number of top holdings to use (auto-fetched from ETF)}
+      notional: {type: number, default: 1000000, min: 10000, description: Trade notional ($)}
+      tenor: {type: string, default: "3M", enum: ["1M", "3M", "6M", "1Y"], description: Option tenor}
+
+  - id: var_swap
+    name: Variance Swap
+    description: Variance swap pricing with fair strike from options replicating portfolio.
+    category: structuring
+    executor: api.routers.canvas.tool_workflow.tools.structuring.var_swap.execute_var_swap
+    params_schema:
+      underlying: {type: string, required: true, description: "Stock ticker (e.g., SPY, AAPL)"}
+      notional: {type: number, default: 100000, min: 1000, description: Notional per variance point ($)}
+      strike_variance: {type: number, required: false, description: Strike variance (decimal). Leave empty for fair strike.}
+      tenor: {type: string, default: "3M", enum: ["1M", "3M", "6M", "1Y"], description: Swap tenor}
+
+  - id: exotic_pricing
+    name: Exotic Derivatives
+    description: Price exotic options using Monte Carlo simulation.
+    category: structuring
+    executor: api.routers.canvas.tool_workflow.tools.structuring.exotic_pricing.execute_exotic_pricing
+    params_schema:
+      derivative_type: {type: string, required: true, enum: [barrier, asian, lookback, digital], default: barrier, description: Exotic option type}
+      underlying: {type: string, required: true, description: "Stock ticker (e.g., SPY, AAPL, NVDA)"}
+      option_type: {type: string, default: call, enum: [call, put], description: Call or Put}
+      strike: {type: number, required: false, description: Strike price in $ (leave empty for ATM = current spot)}
+      expiry: {type: string, required: false, description: "Expiry date YYYY-MM-DD (default: 3 months out)"}
+      num_simulations: {type: number, default: 5000, min: 1000, max: 50000, description: Monte Carlo paths}
+      barrier_type: {type: string, enum: [up-and-out, up-and-in, down-and-out, down-and-in], default: up-and-out, description: Barrier option type}
+      barrier_level: {type: number, required: false, description: Barrier price level in $}
+      averaging_type: {type: string, enum: [arithmetic, geometric], default: arithmetic, description: Asian averaging type}
+      averaging_frequency: {type: string, enum: [daily, weekly, monthly], default: daily, description: Asian sampling frequency}
+      lookback_type: {type: string, enum: [fixed, floating], default: fixed, description: Lookback strike type}
+      digital_payoff: {type: number, default: 100, description: Digital option fixed payout amount in $}
+
+  - id: swaption
+    name: Swaption Pricing
+    description: Price interest rate swaptions (options on swaps) using Black or Bachelier models.
+    category: structuring
+    executor: api.routers.canvas.tool_workflow.tools.structuring.swaption.execute_swaption
+    params_schema:
+      notional: {type: number, default: 10000000, min: 100000, max: 1000000000, description: Notional amount in $}
+      tenor: {type: string, default: "5Y", enum: ["2Y", "5Y", "7Y", "10Y", "15Y", "20Y", "30Y"], description: Swap maturity}
+      float_index: {type: string, default: SOFR, enum: [SOFR, EFFR, FEDFUNDS], description: Floating rate index}
+      payment_freq: {type: string, default: semiannual, enum: [quarterly, semiannual, annual], description: Payment frequency}
+      option_type: {type: string, required: true, enum: [payer, receiver], description: Payer (bet rates rise) or Receiver (bet rates fall)}
+      expiry: {type: string, required: false, description: "Option expiry date (YYYY-MM-DD). Default: 3 months from now."}
+      strike: {type: number, default: 0.045, min: 0.001, max: 0.20, description: "Strike rate (decimal). E.g., 0.045 = 4.5%"}
+      pricing_model: {type: string, default: black, enum: [black, bachelier], description: Pricing model}
+      volatility: {type: number, required: false, description: Override volatility (decimal). Leave empty to auto-estimate.}
+      pricing_date: {type: string, required: false, description: "Valuation date (YYYY-MM-DD). Default: today."}
+
+  - id: irs
+    name: Interest Rate Swap (IRS)
+    description: Price vanilla interest rate swaps using FRED treasury data.
+    category: structuring
+    executor: api.routers.canvas.tool_workflow.tools.structuring.irs.execute_irs
+    params_schema:
+      notional: {type: number, default: 10000000, min: 100000, max: 1000000000, description: Notional amount in $}
+      fixed_rate: {type: number, default: 0.04, min: 0.001, max: 0.20, description: "Fixed rate (decimal, e.g., 0.045 = 4.5%)"}
+      float_index: {type: string, default: SOFR, enum: [SOFR, EFFR, FEDFUNDS], description: Floating rate index}
+      tenor: {type: string, default: "5Y", enum: ["2Y", "5Y", "7Y", "10Y", "15Y", "20Y", "30Y"], description: Swap maturity}
+      payment_freq: {type: string, default: semiannual, enum: [quarterly, semiannual, annual], description: Payment frequency}
+      pricing_date: {type: string, required: false, description: "Valuation date (YYYY-MM-DD). Default: today."}
+
+  - id: cds
+    name: Credit Default Swap (CDS)
+    description: Calculate fair CDS spread using Merton model.
+    category: structuring
+    executor: api.routers.canvas.tool_workflow.tools.structuring.cds.execute_cds
+    params_schema:
+      ticker: {type: string, required: true, description: "Reference entity ticker (e.g., AAPL, TSLA)"}
+      notional: {type: number, default: 10000000, min: 100000, max: 1000000000, description: Notional amount in $}
+      tenor: {type: string, default: "5Y", enum: ["1Y", "3Y", "5Y", "7Y", "10Y"], description: CDS maturity}
+      pricing_date: {type: string, required: false, description: "Valuation date (YYYY-MM-DD). Default: today."}
+
+  # =============================================================================
+  # ALTERNATIVES TOOLS
+  # =============================================================================
+  - id: commodity_ratio
+    name: Commodity Ratio
+    description: "Analyze any commodity ratio for mean reversion. Presets: Gold/Silver, Gold/Oil, etc."
+    category: alternatives
+    executor: api.routers.canvas.tool_workflow.tools.alternatives.commodity_ratio.execute_commodity_ratio
+    params_schema:
+      preset: {type: string, default: gold_silver, enum: [gold_silver, gold_oil, oil_gas, copper_gold, silver_copper, custom], description: "Preset pair or 'custom' for manual symbols"}
+      numerator: {type: string, required: false, description: "Numerator symbol (for custom, e.g. GCUSD)"}
+      denominator: {type: string, required: false, description: "Denominator symbol (for custom, e.g. SIUSD)"}
+      lookback_days: {type: number, default: 365, min: 60, max: 756, description: Historical lookback (days)}
+      high_z_threshold: {type: number, default: 1.5, min: 1.0, max: 3.0, description: Z-score for DENOM_CHEAP signal}
+      low_z_threshold: {type: number, default: -1.5, min: -3.0, max: -1.0, description: Z-score for NUM_CHEAP signal}
+
+  - id: commodity_momentum
+    name: Commodity Momentum
+    description: Screen and rank commodities by momentum with optional HMM regime detection.
+    category: alternatives
+    executor: api.routers.canvas.tool_workflow.tools.alternatives.commodity_momentum.execute_commodity_momentum
+    params_schema:
+      symbols:
+        type: array
+        items: string
+        default: ["Gold (GCUSD)", "Silver (SIUSD)", "Crude Oil WTI (CLUSD)", "Natural Gas (NGUSD)", "Copper (HGUSD)", "Brent Crude (BZUSD)"]
+        enum: ["Gold (GCUSD)", "Silver (SIUSD)", "Platinum (PLUSD)", "Palladium (PAUSD)", "Copper (HGUSD)", "Crude Oil WTI (CLUSD)", "Brent Crude (BZUSD)", "Natural Gas (NGUSD)", "Heating Oil (HOUSD)", "RBOB Gasoline (RBUSD)", "Corn (ZCUSD)", "Soybeans (ZSUSD)", "Soybean Meal (ZMUSD)", "Soybean Oil (ZLUSD)", "Wheat (ZWUSD)", "Wheat CBOT (KEUSD)", "Oats (ZOUSD)", "Rough Rice (ZRUSD)", "Sugar (SBUSD)", "Cocoa (CCUSD)", "Coffee (KCUSD)", "Cotton (CTUSD)", "Live Cattle (LCUSD)", "Lean Hogs (LHUSD)", "Feeder Cattle (FCUSD)", "Class III Milk (DAUSD)", "Nonfat Dry Milk (DKUSD)", "Butter (GFUSD)", "Orange Juice (OJUSD)", "Lumber (LBUSD)"]
+        description: Select commodities to screen
+      lookback_days: {type: number, default: 120, min: 30, max: 365, description: Historical lookback (days)}
+      detect_regime: {type: boolean, default: true, description: Enable HMM regime detection}
+
+  - id: commodity_seasonal
+    name: Commodity Seasonality
+    description: Analyze historical seasonal patterns for commodities.
+    category: alternatives
+    executor: api.routers.canvas.tool_workflow.tools.alternatives.commodity_seasonal.execute_commodity_seasonal
+    params_schema:
+      symbol:
+        type: string
+        required: true
+        enum: ["Gold (GCUSD)", "Silver (SIUSD)", "Platinum (PLUSD)", "Palladium (PAUSD)", "Copper (HGUSD)", "Crude Oil WTI (CLUSD)", "Brent Crude (BZUSD)", "Natural Gas (NGUSD)", "Heating Oil (HOUSD)", "RBOB Gasoline (RBUSD)", "Corn (ZCUSD)", "Soybeans (ZSUSD)", "Soybean Meal (ZMUSD)", "Soybean Oil (ZLUSD)", "Wheat (ZWUSD)", "Wheat CBOT (KEUSD)", "Oats (ZOUSD)", "Rough Rice (ZRUSD)", "Sugar (SBUSD)", "Cocoa (CCUSD)", "Coffee (KCUSD)", "Cotton (CTUSD)", "Live Cattle (LCUSD)", "Lean Hogs (LHUSD)", "Feeder Cattle (FCUSD)", "Class III Milk (DAUSD)", "Nonfat Dry Milk (DKUSD)", "Butter (GFUSD)", "Orange Juice (OJUSD)", "Lumber (LBUSD)"]
+        description: Select commodity to analyze
+      years_history: {type: number, default: 2, min: 1, max: 5, description: Years of historical data (1-5)}
+
+  - id: crypto_beta
+    name: Crypto-Equity Beta
+    description: Detect crypto-equity correlation regime (RISK_ON/RISK_OFF/NEUTRAL).
+    category: alternatives
+    executor: api.routers.canvas.tool_workflow.tools.alternatives.crypto_beta.execute_crypto_beta
+    params_schema:
+      crypto_symbol: {type: string, default: BTCUSD, enum: [BTCUSD, ETHUSD, SOLUSD, XRPUSD, ADAUSD, DOGEUSD, AVAXUSD, MATICUSD, DOTUSD, LINKUSD], description: Primary cryptocurrency}
+      equity_symbol: {type: string, default: SPY, enum: [SPY, QQQ, IWM, DIA, VTI, XLK, XLF, XLE, ARKK, TLT], description: Primary equity benchmark}
+      additional_cryptos:
+        type: array
+        items: string
+        default: []
+        enum: [BTCUSD, ETHUSD, SOLUSD, XRPUSD, ADAUSD, DOGEUSD, AVAXUSD, MATICUSD, DOTUSD, LINKUSD]
+        description: Additional cryptos for correlation matrix
+      additional_equities:
+        type: array
+        items: string
+        default: []
+        enum: [SPY, QQQ, IWM, DIA, VTI, XLK, XLF, XLE, ARKK, TLT]
+        description: Additional equities for correlation matrix
+      lookback_days: {type: number, default: 365, min: 60, max: 756, description: Historical lookback (days)}
+      high_z_threshold: {type: number, default: 1.5, min: 1.0, max: 3.0, description: Z-score for RISK_ON signal}
+      low_z_threshold: {type: number, default: -1.5, min: -3.0, max: -1.0, description: Z-score for RISK_OFF signal}
+
+  - id: fx_carry
+    name: FX Carry Trade Screener
+    description: Screen FX pairs by carry trade opportunities with risk-adjusted carry (Sharpe ratio).
+    category: alternatives
+    executor: api.routers.canvas.tool_workflow.tools.alternatives.fx_carry.execute_fx_carry
+    params_schema:
+      pairs:
+        type: array
+        items: string
+        required: true
+        default: ["AUD/JPY (AUDJPY)", "NZD/JPY (NZDJPY)", "USD/JPY (USDJPY)", "EUR/USD (EURUSD)", "GBP/USD (GBPUSD)", "AUD/USD (AUDUSD)"]
+        enum: ["AUD/JPY (AUDJPY)", "NZD/JPY (NZDJPY)", "USD/JPY (USDJPY)", "EUR/USD (EURUSD)", "GBP/USD (GBPUSD)", "AUD/USD (AUDUSD)", "NZD/USD (NZDUSD)", "USD/CHF (USDCHF)", "EUR/JPY (EURJPY)", "GBP/JPY (GBPJPY)", "CHF/JPY (CHFJPY)", "CAD/JPY (CADJPY)", "EUR/GBP (EURGBP)", "EUR/CHF (EURCHF)", "EUR/AUD (EURAUD)", "EUR/CAD (EURCAD)", "GBP/CHF (GBPCHF)", "GBP/AUD (GBPAUD)", "USD/CAD (USDCAD)", "AUD/CAD (AUDCAD)", "AUD/NZD (AUDNZD)", "NZD/CAD (NZDCAD)", "USD/MXN (USDMXN)", "USD/ZAR (USDZAR)", "EUR/NOK (EURNOK)", "EUR/SEK (EURSEK)", "USD/NOK (USDNOK)", "USD/SEK (USDSEK)", "USD/SGD (USDSGD)", "USD/HKD (USDHKD)", "USD/CNY (USDCNY)", "USD/INR (USDINR)", "USD/BRL (USDBRL)", "USD/TRY (USDTRY)", "USD/PLN (USDPLN)", "USD/KRW (USDKRW)"]
+        description: Select FX pairs to screen (multi-select)
+      lookback_days: {type: number, default: 180, min: 60, max: 365, description: Historical lookback period (days)}
+      use_regime_detection: {type: boolean, default: false, description: Enable HMM regime detection (advanced)}
